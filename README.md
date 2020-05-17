@@ -1,2 +1,2 @@
-# Jeop
-J?
+# J?
+xcode-select --install
