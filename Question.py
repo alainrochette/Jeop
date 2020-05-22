@@ -3,38 +3,52 @@ from random import choice, randint
 import PyQt5
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import *
+from PyQt5.QtGui import QColor as qc
 from PyQt5.QtCore import *
 from PyQt5.QtCore import QObject, QTimer
 from PyQt5.QtWidgets import *
 import textwrap
+import PyQt5.QtMultimedia as M
 
 # + = []
 
 whiteTransition = ["#000292","#000292","#000292","#000292","#0002b3","#0002e0","#1416ff","#5758ff","#7072ff","#bdbeff","white"]
 class Question:
-	def __init__(self, game,round, r,c,category,question_text,answer_text, loading,):
+	def __init__(self, game,round, r,c,category,question_text,answer_text, loading,clue=None):
 		self.game = game
 		self.round = round
 		self.category = category
 		self.r = r
 		self.c = c
 		self.loading = loading
+		self.clue = clue
+		self.song = None
+
+		if ".mp3" in question_text:
+			self.q_text = question_text.split("Sounds/")[0]
+			filename= "Sounds/" +question_text.split("Sounds/")[1]
+			# filename='assets/dailyDouble.mp3'
+			fullpath = QDir.current().absoluteFilePath(filename)
+			media = QUrl.fromLocalFile(fullpath)
+			content = M.QMediaContent(media)
+
+			self.song= M.QMediaPlayer()
+			self.song.setMedia(content)
+			# self.song.play()
+			# print("PLAY!!!")
+		else:
+			self.q_text = question_text.replace("**","")
+			self.q_text = textwrap.fill(self.q_text,width=40) if "Pictures/" not in self.q_text else self.q_text
 
 
-		# self.q_text= question_text
-
-		self.q_text = question_text.replace("**","")
-		# if " | " in self.q_text:
-			# self.finalCat = self.q_text.split(" | ")[0]
-			# self.q_text = self.q_text.split(" | ")[1]
-		self.q_text = textwrap.fill(self.q_text,width=40)
 		# print(question_text)
 		self.isDD = True if  "**" in question_text else False
-		self.a_text = str(answer_text)
+
+		self.a_text =textwrap.fill( str(answer_text),width=40)
 		self.timer = None
 		self.qLayout = QVBoxLayout()
 		self.timerCountdown = 6
-		# self.q = None
+
 		self.titleLabel = None
 		self.qLayout.addLayout(self.menu(self.isDD))
 		self.qLayout.addLayout(self.bTimerBox())
@@ -45,13 +59,9 @@ class Question:
 		self.colorindex = 0
 		self.transTimer = None
 		self.sizeTimer  = None
-
 		self.qsize = 0
 
-
-
-		self.id = str(self.game.round)+str(r) + str(c)
-
+		self.id = str(self.round)+str(r) + str(c)
 
 		self.revealedCat = False
 		self.b = None
@@ -62,33 +72,33 @@ class Question:
 
 
 	def bQuestion(self):
-		self.prize = self.game.round * self.r * 200
+		self.prize = self.round * self.r * 200
 		self.text = "$" + str(self.prize) if self.r != 0 else textwrap.fill(self.category,width=12)
 		if self.id in self.game.answered_questions:
-			b = QPushButton("")
-			b.clicked.connect(lambda: self.game.nothing())
-			b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
-									'border: 0px solid #FFFFFF; background-color: #000292; color: #eccd4b;}'
-									'height: 30px;width: 48px;'
-							 )
+			b = QPushButton(self.text)
+			b.clicked.connect(lambda: self.game.clickedQ(self))
+			b.setStyleSheet('QPushButton {font-family: Arial Black;font-style: normal;font-size: 50pt;font-weight: bold;'
+									'border: 0px solid #FFFFFF; background-color: #000292; color: #000292}'
+									# 'QPushButton:hover { background-color: blue;}'
+									'height: 30px;width: 48px;')
 		elif self.text in self.game.revealedCats:
 			b = QPushButton(self.text)
-			b.clicked.connect(lambda: self.game.nothing())
-			b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 25pt;font-weight: bold;'
-									'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-									'height: 30px;width: 48px;')
-			shad = QGraphicsDropShadowEffect();
-			shad.setBlurRadius(10);
-			shad.setColor(QColor("#000000"));
-			shad.setOffset(20,20);
-			b.setGraphicsEffect(effect);
-		else:
-			# self.text = "$" + str(self.prize) if self.r != 0 else textwrap.fill(self.game.categories[self.c],width=5)
+			if self.clue:
+				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+										'border: 2px solid yellow; background-color: #000292; color:white;}'
+										'QPushButton:hover { background-color: blue;}'
+										'height: 418px;width: 48px;')
+			else:
+				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+										'height: 30px;width: 48px;')
+			b.clicked.connect(lambda: self.toggleClue())
 
+
+		else:
 			if self.r == 0:
 				b = QPushButton("")
-				#500066
-				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 30pt;font-weight: bold;'
+				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 24pt;font-weight: bold;'
 										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
 										'QPushButton:hover { background-color: blue;}'
 										'height: 30px;width: 48px;')
@@ -106,15 +116,46 @@ class Question:
 										'border: 0px solid #FFFFFF; background-color: #000292; color:  #eccd4b}'
 										'QPushButton:hover { background-color: blue;}'
 										'height: 30px;width: 48px;')
+				# shad = QGraphicsDropShadowEffect()
+				# shad.setBlurRadius(100)
+				# shad.setColor(QColor("white"))
+				# shad.setOffset(40,40)
+				# b.setGraphicsEffect(shad)
 				b.clicked.connect(lambda: self.game.clickedQ(self))
 		b.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-		# b.setMaximumSize(200,100)
 		return b
 
 	def QAppear(self, ans):
 		self.transTimer = QTimer()
-		self.transTimer.timeout.connect(lambda:self.changeQColor(ans))
+		if "Pictures/" in self.q_text and not ans:
+			self.transTimer.timeout.connect(lambda:self.changeQSize())
+
+		else:
+			if self.song: self.song.stop()
+			self.transTimer.timeout.connect(lambda:self.changeQColor(ans))
 		self.transTimer.start(60)
+
+
+	def changeQVolume(self, up):
+		if up:
+			self.game.main.volume = 0
+			self.song.play()
+		self.transTimer = QTimer()
+		self.transTimer.timeout.connect(lambda:self.fadeV(up))
+		self.transTimer.start(60)
+
+	def fadeV(self, up):
+		inc = 2 if up else -5
+		self.game.main.volume += inc
+		if (up and self.game.main.volume > 100) or ((not up) and self.game.main.volume < 0):
+			self.transTimer=None
+			self.game.main.volume = 100
+			if not up: self.song.stop()
+		else:
+			self.song.setVolume(self.game.main.volume)
+
+
+
 
 	def QGrow(self):
 		self.sizeTimer = QTimer()
@@ -122,15 +163,22 @@ class Question:
 		self.sizeTimer.start(60)
 
 	def changeQSize(self):
-		if self.qsize <= 2:
-			self.titleLabel.setMaximumSize(900*self.qsize,300)
+		if self.qsize <= 1:
+			if "Pictures/" in self.q_text:
+				img = QImage(self.q_text).scaledToHeight(400*self.qsize)
+				self.q.setPixmap(QPixmap.fromImage(img))
+				self.q.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+			else:
+				img = QImage("assets/dailyDoub.png").scaledToHeight(250*self.qsize)
+				self.titleLabel.setPixmap(QPixmap.fromImage(img))
+				# self.titleLabel.setMaximumSize(1255,300)
+				self.titleLabel.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 			self.qsize += 0.1
 		else:
 			self.sizeTimer  = None
 
 
 	def changeQColor(self,ans):
-		# q.ansb.setText(q.a_text)
 		t = whiteTransition
 
 		if self.colorindex < len(t):
@@ -138,8 +186,8 @@ class Question:
 				self.ansb.setStyleSheet('QLabel {font-family: Arial;font-style: italic;font-size: 60pt;font-weight: thin;'
 									'border: 0px solid #FFFFFF; background-color: #000292; color:'+str(t[self.colorindex])+';}'
 									'height: 418px;width: 48px;')
-			else:
-				self.q.setStyleSheet('QLabel {font-family: Arial;font-style: normal;font-size: 60pt;font-weight: bold;'
+			elif "Pictures/" not in self.q_text:
+				self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
 										'border: 0px solid #FFFFFF; background-color: #000292; color:'+str(t[self.colorindex])+';}'
 										'height: 418px;width: 48px;')
 			self.colorindex += 1
@@ -157,7 +205,6 @@ class Question:
 		self.timerbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 		self.timerbox.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 		self.timerbox.setMaximumHeight(55)
-		# self.timerbox.setMinimumHeight(50)
 		blayout.addWidget(self.timerbox)
 		return blayout
 
@@ -166,33 +213,33 @@ class Question:
 		if self.isDD and showDDTitle:
 			title = QVBoxLayout()
 
-			# titleLabel = QPushButton("DAILY\nDOUBLE")
 			self.titleLabel = QLabel()
-			self.titleLabel.setStyleSheet("QLabel {background-image:url(\"assets/dailyDoub.png\");"
-											"background-color: #000292;}"
-											"background-position: top right;"
-											"background-repeat: repeat-xy;")
-			# titleLabel.setStyleSheet("QPushButton {background-image:url(\"assets/dailyDoub.png\"); background-color: #000292;}'height: 168px")
-			# titleLabel.setStyleSheet('QPushButton {font-family: Verdana;font-style: normal;font-size: 140pt;font-weight: bold;'
-			# 							'border: 0px solid #FFFFFF; background-color: "#000292"; color:white;}'
-			# 							'height: 168px;width: 48px; align:center')
-			# titleLabel.setMinimumSize(550,258)
-			self.titleLabel.setMaximumSize(0,0)
-			self.titleLabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-			# titleLabel.clicked.connect(self.showQuestion)
+			self.titleLabel.setStyleSheet("background-color: #000292;")
+			img = QImage("assets/dailyDoub.png").scaledToHeight(0)
+			self.titleLabel.setPixmap(QPixmap.fromImage(img))
 
-			title.addWidget(self.titleLabel)
-			title.setAlignment(Qt.AlignCenter)
-			blayout.addLayout(title)
-			# blayout.addLayout(playButtonBox)
+
+			# self.titleLabel.setMaximumSize(0,300)
+			self.titleLabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+
+			# title.addWidget(self.titleLabel)
+			self.titleLabel.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+			blayout.addWidget(self.titleLabel)
 			blayout.setSpacing(10)
 
 		else:
-			if self.round == 3: self.q = QLabel(self.category)
-			if self.round != 3: self.q = QLabel(self.q_text)
-			self.q.setStyleSheet('QLabel {font-family: Arial;font-style: normal;font-size: 60pt;font-weight: bold;'
-									'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
-									'height: 418px;width: 48px;')
+			if "Pictures/" in self.q_text:
+				self.q = QLabel()
+				self.q.setStyleSheet("background-color: #000292;")
+				img = QImage(self.q_text).scaledToHeight(0)
+				self.q.setPixmap(QPixmap.fromImage(img))
+				self.q.setAlignment(Qt.AlignCenter)
+			else:
+				if self.round == 3: self.q = QLabel(self.category)
+				if self.round != 3: self.q = QLabel(self.q_text)
+				self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
+										'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
+										'height: 418px;width: 48px;')
 			self.q.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 			self.q.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 			blayout.addWidget(self.q)
@@ -201,13 +248,13 @@ class Question:
 	def bAnswerBox(self, showDDTitle=False):
 		blayout = QVBoxLayout()
 		if self.isDD and showDDTitle:
+
 			play = QLabel("Wager")
 			play.setStyleSheet('QLabel {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
 										'border: 0px solid #FFFFFF; background-color: #000292; color:white;}'
 										'height:418px;width: 48px; align:center')
 			play.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 			play.setMinimumSize(300,260)
-			# play.clicked.connect(self.showQuestion)
 			blayout.addWidget(play)
 		else:
 
@@ -224,10 +271,10 @@ class Question:
 		blayout = QHBoxLayout()
 
 		back = QPushButton("Back")
-		if self.r!= 100:
+		if self.round != 3:
 			back = QPushButton("Back")
 			back.clicked.connect(lambda: self.game.backToBoard())
-		if self.r== 100:
+		if self.round == 3:
 			back = QPushButton("Home")
 			back.clicked.connect(lambda: self.game.main.handle_menustart())
 		back.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
@@ -241,11 +288,11 @@ class Question:
 			self.bTimer = QPushButton("Show Question")
 			self.bTimer.clicked.connect(lambda: self.showQuestion())
 		else:
-			self.bTimer = QPushButton("Start Timer")
-			if self.r != 100:
+			# self.bTimer = QPushButton("Start Timer")
+			if self.round != 3:
 				self.bTimer = QPushButton("Start Timer")
 				self.bTimer.clicked.connect(lambda: self.toggleTimer())
-			if self.r== 100:
+			if self.round == 3:
 				self.bTimer = QPushButton("Show Question")
 				self.bTimer.clicked.connect(lambda: self.showFinalQ())
 		self.bTimer.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
@@ -278,8 +325,8 @@ class Question:
 			try:
 				self.timerbox.setText(str(self.timerCountdown))
 				if self.timerCountdown==0:
-					 self.game.main.tuFX.play()
-					 self.toggleTimer()
+					self.game.main.sounds["timesUp"].play()
+					self.toggleTimer()
 			except RuntimeError:
 				pass
 
@@ -289,16 +336,18 @@ class Question:
 			self.bTimer.setText("Start Timer")
 			self.timerCountdown = 6
 			self.timerbox.setText("")
+			if self.song: self.changeQVolume(False)
 			self.timer = None
 		else:
 			self.bTimer.setText("Stop Timer")
 			self.timerbox.setText(str(self.timerCountdown))
 			self.timer = QTimer()
+			if self.song: self.changeQVolume(True)
 			self.timer.timeout.connect(self.updateTimer)
 			self.timer.start(1000)
 
 	def toggleFinalTimer(self):
-		self.game.main.finalTheme.play()
+		self.game.main.sounds["jeopFinal"].play()
 
 
 	def showFinalQ(self):
@@ -306,6 +355,27 @@ class Question:
 		self.bTimer.setText("Start Timer")
 		self.bTimer.clicked.connect(lambda: self.toggleFinalTimer())
 
+	def toggleClue(self):
+		if self.clue:
+			if self.b.text() == self.clue:
+				self.b.setText(self.text)
+				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 24pt;font-weight: bold;'
+										'border: 2px solid yellow; background-color: #000292; color:white;}'
+										'QPushButton:hover { background-color: blue;}'
+										'height: 418px;width: 48px;')
+			else:
+				self.b.setText(self.clue)
+				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
+										'border: 2px solid yellow; background-color: #000292; color:yellow;}'
+										'QPushButton:hover { background-color: blue;}'
+										'height: 418px;width: 48px;')
+
+		else:
+			pass
+			# self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 25pt;font-weight: bold;'
+			# 						'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+			# 						'height: 30px;width: 48px;')
+			# self.b.clicked.connect(lambda: self.game.nothing())
 
 	def showQuestion(self):
 		self.qLayout = QVBoxLayout()
@@ -316,7 +386,3 @@ class Question:
 		self.qLayout.setSpacing(0)
 		self.isDD = False
 		self.game.clickedQ(self)
-
-
-	# def show_question(self):
-	# 	self.bQuestion

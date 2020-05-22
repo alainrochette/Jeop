@@ -8,14 +8,12 @@ from Menus.Menu import Menu
 from Menus.LoadMenu import LoadMenu
 from Menus.DoubMenu import DoubMenu
 from Menus.FinalMenu import FinalMenu
-# from Menu import Menu
-# from LoadMenu import LoadMenu
-# from DoubMenu import DoubMenu
-# from FinalMenu import FinalMenu
-# from own_dice import OwnDice
 import PyQt5.QtMultimedia as M
 
 import csv
+import os
+import sys
+
 
 _app = QApplication([])
 
@@ -27,10 +25,13 @@ class Communicate(QObject):
 COM = Communicate()
 
 # + = [] {}
+THEMEVOLUME = 10
 class MainWindow(QWidget):
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.game = None
+		self.soundsList = ["jeopTheme", "dailyDouble", "timesUp", "jeopFinal","jeopEntry"]
+		self.soundVolumes = {"jeopTheme":10, "dailyDouble":40, "timesUp":60, "jeopFinal":100,"jeopEntry":100}
 		self.menu = Menu(self)
 		self.loadmenu= None
 		self.doubMenu=None
@@ -44,56 +45,47 @@ class MainWindow(QWidget):
 		self.history = []
 		self.lying_rate = 0
 		self.buffer = 1
-		# self.own_dice = False
-
-		# self.resize(800, 600)
-		# self.resize(1200,1200)
 		self.setFixedSize(1200,1200);
 		self.in_game = False
-		self.player = None
-		self.finalTheme = None
-		self.volume = 100
+
+		# self.maxvolume = 100
+		self.volume = 10
+		self.sounds = {}
 
 
 		COM.menustart.connect(self.handle_menustart)
-
-		# COM.gamestart.connect(lambda: self.handle_gamestart())
 		COM.menustart.emit()
 
 
 
 
 	def handle_menustart(self):
-		if self.player:
-			self.volume = 100
-			self.player.setVolume(100)
-			self.player.play()
+		if "jeopTheme" in self.sounds:
+			self.sounds["jeopTheme"].setVolume(self.soundVolumes["jeopTheme"])
+			self.sounds["jeopTheme"].play()
 		if self.game: self.game.hide()
 		if self.loadmenu: self.loadmenu.hide()
-		if self.finalTheme: self.finalTheme.stop()
+		if "jeopFinal" in self.sounds: self.sounds["jeopFinal"].stop()
 		self.menu.show()
 		self.hide()
 		self.on_menu = True
 
-	def handle_loadmenustart(self):
+	def handle_loadmenustart(self, real=False):
 		if self.menu: self.menu.hide()
 		if self.game: self.game.hide()
-		if self.finalTheme: self.finalTheme.stop()
-		self.loadmenu = LoadMenu(self)
+		if "jeopFinal" in self.sounds: self.sounds["jeopFinal"].stop()
+		self.loadmenu = LoadMenu(self, real)
 		self.hide()
 
-	def handle_gamestart(self,game):
+	def handle_gamestart(self,game,season=None):
 		if self.menu: self.menu.hide()
 		if self.loadmenu: self.loadmenu.hide()
 		if self.game: self.game.deleteLater()
-
-		self.game = Game(self,game)
+		self.game = Game(self,game,season)
 
 	def handle_doublejeopardy(self):
 		if self.menu: self.menu.hide()
 		if self.DoubMenu: self.DoubMenu.hide()
-		# if self.game: self.game.deleteLater()
-
 		self.game.startDoubleJeopardy()
 
 	def handle_doublejeopardyMenu(self):
@@ -104,7 +96,6 @@ class MainWindow(QWidget):
 	def handle_finaljeopardy(self):
 		if self.menu: self.menu.hide()
 		if self.finalMenu: self.finalMenu.hide()
-		# if self.game: self.game.deleteLater()
 
 		self.game.startFinalJeopardy()
 
@@ -114,58 +105,30 @@ class MainWindow(QWidget):
 		self.finalMenu = FinalMenu(self)
 
 
-		# self.game = Window(self)
-
-
-
-
-
 if __name__ == '__main__':
+	if "--install" in sys.argv:
+		os.system("clear")
+		print("---- Installing pip ----\n")
+		os.system("curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py")
+		os.system("python3 get-pip.py")
+		print("---- Installing pandas ----\n")
+		os.system("pip install pandas")
+		if sys.platform == "darwin":
+		    print("\n---- Installing XCode Command Line Tools ----\n")
+		    os.system("xcode-select --install")
+
 
 	_main_window = MainWindow()
-	filenameTheme= 'assets/jeopTheme.mp3'
-	fullpathTheme = QDir.current().absoluteFilePath(filenameTheme)
-	mediaTheme = QUrl.fromLocalFile(fullpathTheme)
-	contentTheme = M.QMediaContent(mediaTheme)
-
-	filenameDD= 'assets/dailyDouble.mp3'
-	fullpathDD = QDir.current().absoluteFilePath(filenameDD)
-	mediaDD = QUrl.fromLocalFile(fullpathDD)
-	contentDD = M.QMediaContent(mediaDD)
-
-	filenameTU= 'assets/timesUp.mp3'
-	fullpathTU = QDir.current().absoluteFilePath(filenameTU)
-	mediaTU = QUrl.fromLocalFile(fullpathTU)
-	contentTU = M.QMediaContent(mediaTU)
-
-	filenameFinal= 'assets/jeopFinal.mp3'
-	fullpathFinal = QDir.current().absoluteFilePath(filenameFinal)
-	mediaFinal = QUrl.fromLocalFile(fullpathFinal)
-	contentFinal = M.QMediaContent(mediaFinal)
-
-	filenameEntry= 'assets/jeopEntry.mp3'
-	fullpathEntry = QDir.current().absoluteFilePath(filenameEntry)
-	mediaEntry = QUrl.fromLocalFile(fullpathEntry)
-	contentEntry = M.QMediaContent(mediaEntry)
 
 
-
-	_main_window.ddFX = M.QMediaPlayer()
-	_main_window.ddFX.setMedia(contentDD)
-
-	_main_window.tuFX = M.QMediaPlayer()
-	_main_window.tuFX.setMedia(contentTU)
-
-	_main_window.entryFX = M.QMediaPlayer()
-	_main_window.entryFX.setMedia(contentEntry)
-
-	_main_window.finalTheme = M.QMediaPlayer()
-	_main_window.finalTheme.setMedia(contentFinal)
-
-	_main_window.player = M.QMediaPlayer()
-	_main_window.player.setMedia(contentTheme)
-	_main_window.player.play()
-
-
+	for s in _main_window.soundsList:
+		filename= 'assets/' + s + '.mp3'
+		fullpath = QDir.current().absoluteFilePath(filename)
+		media = QUrl.fromLocalFile(fullpath)
+		content = M.QMediaContent(media)
+		_main_window.sounds[s] = M.QMediaPlayer()
+		_main_window.sounds[s].setMedia(content)
+		_main_window.sounds[s].setVolume(_main_window.soundVolumes[s])
+		if s == "jeopTheme":_main_window.sounds[s].play()
 
 	sys.exit(_app.exec_())

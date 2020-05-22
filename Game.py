@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import *
 import textwrap
 import csv
 import pandas as pd
+import datetime
+import random
 
 SIG=QObject()
 
@@ -19,16 +21,18 @@ _app = QApplication([])
 # + = [] {}
 
 class Game(QMainWindow):
-	def __init__(self, main, gameName):
+	def __init__(self, main, gameName, season=None):
 		super().__init__()
 		super().setStyleSheet("background-color: black")
 		self.main = main
 		self.gameName = gameName
-		self.roundExcelQuestions  = self.loadQuestions()
-		# self.ExcelQuestions = ExcelQuestions(gameName)
+		self.season = season
+		if gameName.count("/") == 2:
+			self.roundExcelQuestions  = self.loadRealQuestions()
+		else:
+			self.roundExcelQuestions  = self.loadQuestions()
 		self.date = None
 		self.all_questions = []
-		# self.main.player.stop()
 		self.round = 1
 		self.questionsGrid = []
 		self.player_names = main.player_names
@@ -44,7 +48,6 @@ class Game(QMainWindow):
 		self.questions = {}
 
 		self.frame = QFrame()
-		# self.second_round = []
 		self.prize = 0
 		self.onQuestion = False
 		self.answered = False
@@ -54,8 +57,6 @@ class Game(QMainWindow):
 		self.answered_questions = []
 		self.revealedCats = []
 		self.main.players = [Player(self, name) for name in main.player_names]
-		self.finalQ =  Question(self,3,100, 100, "Final Category", "FINAL QUESTION", "What is a placeholder.",True)
-		# self.resize(1200, 1200)
 
 		self.start_game(load=True)
 
@@ -69,6 +70,7 @@ class Game(QMainWindow):
 		roundExcelQuestions= {}
 		roundExcelQuestions[round]= []
 		for index, row in excelgame.iterrows():
+			if r > 34: break
 			if r == 16 or r == 30:
 				round += 1
 				roundExcelQuestions[round]= []
@@ -76,38 +78,101 @@ class Game(QMainWindow):
 				if r!=1 and r!=2 and r!=15 and r!=16 and r!=29 and r!=30: #SKIP INBETWEEN
 					if r % 2 == 0:
 						qrow = int(((r -3) % 14)/2)
-						# print("ANSROW", qrow)
 						colrange = 6 if round < 3 else 1
 						for qcol in range(colrange):
 							answer = row[qcol] if not pd.isna(row[qcol]) else ""
-							# print("QUESTION",roundExcelQuestions[round][qrow][qcol].q_text)
-							# print("ANSWER", answer)
 							roundExcelQuestions[round][qrow][qcol].a_text = answer
 					else:
 						isCat = True if (r==3 or r==17 or r==31) else False
 						colrange = 6 if round < 3 else 1
-						if isCat:
-							categories= [row[i] for i in range(colrange)]
-							# print("CATEGORIES",categories)
-
+						if isCat: categories= [row[i] for i in range(colrange)]
 
 						qrow = int(((r -3) % 14)/2)
 						roundQuestionRow = []
 						for qcol in range(colrange):
 							question = row[qcol]
-							# print("ROUND", round, "ROW", qrow, "COL", qcol, "QUEST",question)
-							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "temp"))
+							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "cat"))
 						roundExcelQuestions[round].append(roundQuestionRow)
-			# print(r, row[0])
+
 			r += 1
 		return roundExcelQuestions
 
+	def getRow(self, round, prize):
+		return int((prize / round) / 200)
+
+	def loadRealQuestions(self):
+
+		tsv_file = open("Seasons/season"+str(self.season)+".tsv")
+		read_tsv = csv.reader(tsv_file, delimiter="\t")
 
 
+		roundExcelQuestions= {}
+		roundExcelQuestions[1] = [["X" for i in range(6)] for i in range(6)]
+		roundExcelQuestions[2] = [["X" for i in range(6)] for i in range(6)]
+		roundExcelQuestions[3] = [["X"]]
+
+		dateRounds = {}
+		for row in read_tsv:
+			dt = self.convDate(row[7])
+			if dt == "XXX": continue
+			round = int(row[0])
+			cat = row[3].replace("\\", "")
+			if dt not in dateRounds:
+				dateRounds[dt] = {}
+			if round not in dateRounds[dt]:
+				dateRounds[dt][round] = {}
+			if cat not in dateRounds[dt][round]:
+				dateRounds[dt][round][cat] = []
+				dateRounds[dt][round][cat].append(ExcelQuestion(self,round,0, 100,cat, cat,"cat", row[4]))
+			q = row[5].replace("\\", "")
+			a = row[6].replace("\\", "")
+			if row[2] == 'yes':
+				r = (r + 1) % 6
+				q = "**" + q
+			else:
+				if datetime.datetime.strptime(row[7], '%Y-%m-%d') <= datetime.datetime.strptime("2001-11-23", '%Y-%m-%d'):
+					r = int((int(row[1]) / int(row[0])) / 100)
+				else:
+					r = int((int(row[1]) / int(row[0])) / 200)
+			dateRounds[dt][round][cat].append(ExcelQuestion(self,round,r, 100,cat, q,a, row[4]))
+		alldates = list(dateRounds.keys())
+		totalcats = {}
+		totalcats[1] = 0
+		totalcats[2] = 0
+		totalcats[3] = 0
+		for r in dateRounds[self.gameName]:
+			for cat in dateRounds[self.gameName][r]:
+				if len(dateRounds[self.gameName][r][cat]) == 6 or r == 3:
+					for q in dateRounds[self.gameName][r][cat]:
+						roundExcelQuestions[r][q.r][totalcats[r]] = q
+					totalcats[r] += 1
+
+		nextD = self.gameName
+		for r in roundExcelQuestions:
+			if r < 3:
+				for cat in roundExcelQuestions[r]:
+					while totalcats[r] < 6:
+						nextD = alldates[(alldates.index(nextD) + 1) % (len(alldates))]
+						for round in dateRounds[nextD]:
+							if r == round:
+								for cat in dateRounds[nextD][r]:
+									if len(dateRounds[nextD][r][cat]) == 6 or r == 3:
+										for q in dateRounds[nextD][r][cat]:
+											roundExcelQuestions[r][q.r][totalcats[r]] = q
+										totalcats[r] += 1
+										if totalcats[r] >= 6: break
+							if totalcats[r] >= 6: break
+						if totalcats[r] >= 6: break
+					if totalcats[r] >= 6: break
+
+		return roundExcelQuestions
 
 
-
-
+	def convDate(self,d):
+		try:
+			return datetime.datetime.strptime(d, '%Y-%m-%d').strftime('%m/%d/%y')
+		except ValueError:
+			return "XXX"
 
 	def startFinalJeopardy(self):
 		self.round = 3
@@ -115,7 +180,12 @@ class Game(QMainWindow):
 		self.revealedCats = [1,2,3,4,5,6]
 
 		self.start_game()
-		self.clickedQ(self.finalQ)
+		try:
+			eQ = self.roundExcelQuestions[self.round][1][0]
+		except IndexError:
+			eQ = self.roundExcelQuestions[self.round][0][0]
+		q = Question(self, self.round, eQ.r, eQ.c, eQ.category, eQ.q_text,eQ.a_text,loading=False)
+		self.clickedQ(q)
 
 	def startDoubleJeopardy(self):
 		self.round = 2
@@ -123,11 +193,6 @@ class Game(QMainWindow):
 		self.revealedCats = []
 
 		self.start_game()
-		# super().showNormal()
-		# self.showNormal()
-		# super().showFullScreen()
-		# self.resize(1200, 1200)
-
 
 	def clickedQ(self, q):
 		if len(self.revealedCats)== 6:
@@ -136,7 +201,6 @@ class Game(QMainWindow):
 			self.onQuestion = True
 			self.answered = False
 			self.answered_questions.append(q.id)
-			# q.b.setText = "50000"
 
 			self.layout.deleteLater()
 			self.layout.removeItem(self.player_board)
@@ -148,10 +212,10 @@ class Game(QMainWindow):
 			self.mainWidget.deleteLater()
 			self.mainWidget = QWidget()
 			self.mainWidget.setLayout(self.layout)
-			# self.frame.show()
-			#
+
 			if q.isDD:
-				self.main.ddFX.play()
+				self.main.sounds["dailyDouble"].play()
+				# self.main.ddFX.play()
 				q.QGrow()
 			else:
 				q.QAppear(False)
@@ -163,10 +227,17 @@ class Game(QMainWindow):
 		self.revealedCats.append(q.text)
 		self.revealedCats = list(set(self.revealedCats))
 		q.b.setText(q.text)
-		q.b.clicked.connect(lambda: self.nothing())
-		q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 24pt;font-weight: bold;'
-								'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-								'height: 418px;width: 48px;')
+		if q.clue:
+			q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+									'border: 2px solid yellow; background-color: #000292; color:white;}'
+									'QPushButton:hover { background-color: blue;}'
+									'height: 418px;width: 48px;')
+			q.b.clicked.connect(lambda: q.toggleClue())
+		else:
+			q.b.clicked.connect(lambda: self.nothing())
+			q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+									'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+									'height: 418px;width: 48px;')
 
 	def backToBoard(self):
 		self.onQuestion = False
@@ -176,40 +247,45 @@ class Game(QMainWindow):
 
 	def fadeAudio(self):
 		self.timer = QTimer()
+		self.main.volume = self.main.soundVolumes["jeopTheme"]
 		self.timer.timeout.connect(self.setVolume)
 		self.timer.start(60)
 
 	def setVolume(self):
 		if self.timer:
-			self.main.volume -= 5
+			self.main.volume -= 1
 			if self.main.volume < 0:
 				self.timer=None
-				self.main.player.stop()
+				self.main.sounds["jeopTheme"].stop()
 				self.fadeEntrance()
 				self.main.volume = 100
 			else:
-				self.main.player.setVolume(self.main.volume)
+				self.main.sounds["jeopTheme"].setVolume(self.main.volume)
 
 	def fadeEntrance(self):
-		self.main.entryFX.play()
+		self.main.sounds["jeopEntry"].setVolume(self.main.soundVolumes["jeopEntry"]/2)
+		self.main.sounds["jeopEntry"].play()
 		self.timerTick = 0
 		self.timer = QTimer()
 		self.timer.timeout.connect(self.entrance)
 		self.timer.start(350)
 
 	def entrance(self):
-		if self.timerTick < len(self.startShow):
-			r=1
-			for c in self.startShow[self.timerTick]:
-				self.questionsGrid[r][c].b.setStyleSheet('QPushButton {font-family: Arial Black;font-style: normal;font-size: 50pt;font-weight: bold;'
-										'border: 0px solid #FFFFFF; background-color: #000292; color: #eccd4b}'
-										'QPushButton:hover { background-color: blue;}'
-										'height: 30px;width: 48px;')
-				r += 1
-
-		else:
+		if self.round == 3:
 			self.timer = None
-		self.timerTick += 1
+		else:
+			if self.timerTick < len(self.startShow):
+				r=1
+				self.main.sounds["jeopEntry"].setVolume(min((self.main.soundVolumes["jeopEntry"]/2)*(1 + (1/2)*self.timerTick),100))
+				for c in self.startShow[self.timerTick]:
+					self.questionsGrid[r][c].b.setStyleSheet('QPushButton {font-family: Arial Black;font-style: normal;font-size: 50pt;font-weight: bold;'
+											'border: 0px solid #FFFFFF; background-color: #000292; color: #eccd4b}'
+											'QPushButton:hover { background-color: blue;}'
+											'height: 30px;width: 48px;')
+					r += 1
+			else:
+				self.timer = None
+			self.timerTick += 1
 
 
 	def showAnswer(self, q):
@@ -224,7 +300,6 @@ class Game(QMainWindow):
 		else:
 			if self.answered and self.onQuestion:
 				player.addPoints(self.prize)
-				# self.backToBoard()
 
 	def playerRem(self, player):
 		if player.edit:
@@ -239,37 +314,13 @@ class Game(QMainWindow):
 	def refreshLayout(self):
 		self.board  =QVBoxLayout()
 
-		if not self.gameName:
-			# for r in range(6):
-			# 	question_row= QHBoxLayout()
-			# 	for c in range(6):
-			# 		for q in self.all_questions:
-			# 			if q.round == self.round and q.r == r and q.c == c:
-			# 				question_row.addWidget(q.b)
-			# 				break
-			#
-			# 	self.board.addLayout(question_row)
-			pass
-		else:
-			categories = ["CAT" + str(i) for i in range(6)]
-			for eQRow in range(len(self.roundExcelQuestions[self.round])):
-				question_row= QHBoxLayout()
-				for eQColumn in range(len(self.roundExcelQuestions[self.round][eQRow])):
-					eQ = self.roundExcelQuestions[self.round][eQRow][eQColumn]
-					q = Question(self, self.round, eQRow, eQColumn, eQ.category, eQ.q_text,eQ.a_text,loading=False)
-					question_row.addWidget(q.b)
-				self.board.addLayout(question_row)
-			#
-			# for r in range(6):
-			# 	question_row= QHBoxLayout()
-			# 	for c in range(6):
-			# 		# print(r,c)
-			# 		qtxt = "**One might set this linguistic term as a question in lieue of an actual question." if (r == 3 and c == 3 )else "One might set this linguistic term as a question in lieue of an actual question."
-			# 		# qtxt = "**One might set this linguistic term as a question in lieue of an actual question."
-			# 		q = Question(self, 1, r, c, categories[c],qtxt, "What is a placeholder.",loading=False)
-			# 		# q = self.questionsGrid[r][c]
-			# 		question_row.addWidget(q.b)
-			# 	self.board.addLayout(question_row)
+		for eQRow in range(len(self.roundExcelQuestions[self.round])):
+			question_row= QHBoxLayout()
+			for eQColumn in range(len(self.roundExcelQuestions[self.round][eQRow])):
+				eQ = self.roundExcelQuestions[self.round][eQRow][eQColumn]
+				q = Question(self, self.round, eQRow, eQColumn, eQ.category, eQ.q_text,eQ.a_text,False,eQ.clue)
+				question_row.addWidget(q.b)
+			self.board.addLayout(question_row)
 
 		self.topmenu = self.add_menu()
 
@@ -280,93 +331,48 @@ class Game(QMainWindow):
 		self.mainWidget = QWidget()
 		self.mainWidget.setLayout(self.layout)
 		self.setCentralWidget(self.mainWidget)
-		# self.resize(1200, 1200)
-		# self.show()
 
 	def loadQ(self):
 		pass
 
 
 	def start_game(self,load=False):
-		if not self.gameName:
-			# if load: self.loadQ()
-			# if self.round != 3: self.board  =QVBoxLayout()
-			# self.player_board  =QVBoxLayout()
-			# self.topmenu = self.add_menu()
-			# for r in range(6):
-			# 	question_row= QHBoxLayout()
-			# 	for c in range(6):
-			# 		for q in self.all_questions:
-			# 			if q.round == self.round and q.r == r and q.c == c:
-			# 				question_row.addWidget(q.b)
-			# 				break
-			#
-			# 	self.board.addLayout(question_row)
-			pass
+		self.questionsGrid = []
+		if self.round != 3: self.board  =QVBoxLayout()
+		self.player_board  =QVBoxLayout()
+		self.topmenu = self.add_menu()
 
-		else:
-			self.questionsGrid = []
-			if self.round != 3: self.board  =QVBoxLayout()
-			self.player_board  =QVBoxLayout()
-			self.topmenu = self.add_menu()
-			# categories = ["CAT" + str(i) for i in range(6)]
+		# print(self.roundExcelQuestions)
 
-
-
-			# questions = [[str(r) + "-" + str(c) for c in range(6)] for r in range(6)]
-			# print(self.roundExcelQuestions)
-			for eQRow in range(len(self.roundExcelQuestions[self.round])):
-				question_row= QHBoxLayout()
-				newquestionrow = []
-				for eQColumn in range(len(self.roundExcelQuestions[self.round][eQRow])):
-					eQ = self.roundExcelQuestions[self.round][eQRow][eQColumn]
-					q = Question(self, self.round, eQRow, eQColumn, eQ.category, eQ.q_text,eQ.a_text,loading=True)
-					newquestionrow.append(q)
-					question_row.addWidget(q.b)
-				self.board.addLayout(question_row)
-				self.questionsGrid.append(newquestionrow)
-			if self.round!= 3: self.fadeAudio()
-
-			# self.fadeEntrance()
-			# if self.round != 3:
-			# 	for r in range(6):
-			# 		question_row= QHBoxLayout()
-			# 		newquestionrow = []
-			# 		for c in range(6):
-			# 			qtxt = "**One might set this linguistic term as a question in lieue of an actual question." if (r == 3 and c == 3 )else "One might set this linguistic term as a question in lieue of an actual question."
-			# 			q = Question(self, r, c, qtxt, "What is a placeholder.",loading=True)
-			# 			newquestionrow.append(q)
-			# 			question_row.addWidget(q.b)
-			# 		self.board.addLayout(question_row)
-			# 		self.questionsGrid.append(newquestionrow)
-
-
-			# list(map(lambda r: list(map(lambda x: question_rows[r].addWidget(self.bQuestion(x)), questions[r])), range(6)))
+		for eQRow in range(len(self.roundExcelQuestions[self.round])):
+			question_row= QHBoxLayout()
+			newquestionrow = []
+			for eQColumn in range(len(self.roundExcelQuestions[self.round][eQRow])):
+				eQ = self.roundExcelQuestions[self.round][eQRow][eQColumn]
+				q = Question(self, self.round, eQRow, eQColumn, eQ.category, eQ.q_text,eQ.a_text,True,eQ.clue)
+				newquestionrow.append(q)
+				question_row.addWidget(q.b)
+			self.board.addLayout(question_row)
+			self.questionsGrid.append(newquestionrow)
+		if self.round!= 3: self.fadeAudio()
 
 		players_row = QHBoxLayout()
 		players_row.setSpacing(100)
 
 		for player in self.main.players:
-
-			# self.players.append(player)
 			player_col = QHBoxLayout()
 			player_col.setSpacing(2)
-
 
 			player_col.addWidget(player.b_rem)
 			player_col.addWidget(player.b_name)
 			player_col.addWidget(player.b_add)
 
-
 			players_row.addLayout(player_col)
-
 
 		player_scores_row= QHBoxLayout()
 		player_scores_row.setSpacing(100)
 		list(map(lambda p: player_scores_row.addWidget(p.b_score), self.main.players))
 
-		# list(map(lambda x: self.board.addLayout(x), self.question_rows))
-		# self.board.addLayout(self.question_rows[1][1])
 		self.player_board.addLayout(player_scores_row)
 		self.player_board.addLayout(players_row)
 
@@ -375,10 +381,7 @@ class Game(QMainWindow):
 		if self.round != 3: self.layout.addLayout(self.board)
 		self.layout.addLayout(self.player_board)
 		self.layout.setSpacing(8)
-		# self.layout.addLayout(player_scores_row)
-		# self.layout.addLayout(players_row)
 
-		# self.setLayout(self.layout)
 		self.mainWidget = QWidget()
 		self.mainWidget.setLayout(self.layout)
 		self.setCentralWidget(self.mainWidget)

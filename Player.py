@@ -136,20 +136,7 @@ class Player:
 	def stopEdit(self):
 		self.score = int(self.b_score.text())
 		self.edit = False
-		# self.b_score.cursorPositionAt(0)
 		self.b_score.setReadOnly(True)
 		self.b_score.setStyleSheet('QLineEdit {font-family: Arial;font-style: normal;font-size: 50pt;font-weight: bold;'
 										'border: 1px solid #FFFFFF; background-color:#000292; color:white;}'
 										'height: 418px;width: 48px; align:center')
-		# if self.edit:
-		#
-		# 	self.b_score.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 50pt;font-weight: bold;'
-		# 								'border: 0px solid #FFFFFF; background-color:#000292; color:white;}'
-		# 								'height: 418px;width: 48px; align:center')
-		# 	self.edit=False
-		# else:
-		#
-		# 	self.b_score.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 50pt;font-weight: bold;'
-		# 								'border: 0px solid #FFFFFF; background-color:salmon; color:white;}'
-		# 								'height: 418px;width: 48px; align:center')
-		# 	self.edit = True
