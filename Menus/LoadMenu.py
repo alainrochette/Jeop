@@ -29,6 +29,7 @@ class LoadMenu(QMainWindow):
 
 	def refreshGames(self, season=None):
 		self.selectedSeason = season
+		# self.selectedYear = season.replace()
 		goBackBox = QVBoxLayout()
 		goBackBox.setAlignment(Qt.AlignLeft)
 		backb = QPushButton("Back")

@@ -11,5 +11,6 @@ class ExcelQuestion:
 		self.q_text = question_text
 		self.a_text = answer_text
 		self.clue = None
+		if clue == "": clue = None
 		if clue:
 			self.clue = textwrap.fill(clue,width=27) if clue != "-" else None

@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import PyQt5.QtMultimedia as M
+from MenuButton import MenuButton
 
 class Menu(QMainWindow):
 	def __init__(self, main):
@@ -46,25 +47,15 @@ class Menu(QMainWindow):
 		playBox = QVBoxLayout()
 
 		playButtonBox = QHBoxLayout()
-		play = QPushButton("Play Custom")
-		play.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
-									'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
-									'QPushButton:hover { background-color: #b01adb;}'
-									'height: 68px;width: 48px; align:center')
-		play.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
-		play.setMinimumSize(300,88)
-		play.clicked.connect(lambda: self.start_game(False))
-
-		playreal = QPushButton("Play Real")
-		playreal.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
-									'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
-									'QPushButton:hover { background-color: #b01adb;}'
-									'height: 68px;width: 48px; align:center')
-		playreal.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
-		playreal.setMinimumSize(300,88)
-		playreal.clicked.connect(lambda: self.start_game(True))
+		create = MenuButton(self,"Create","normal").button
+		create.clicked.connect(lambda: self.start_game("Create"))
+		play =  MenuButton(self,"Play Custom","normal").button
+		play.clicked.connect(lambda: self.start_game("Custom"))
+		playreal = MenuButton(self,"Play Real","normal").button
+		playreal.clicked.connect(lambda: self.start_game("Real"))
 
 		playButtonBox.setAlignment(Qt.AlignCenter)
+		playButtonBox.addWidget(create)
 		playButtonBox.addWidget(play)
 		playButtonBox.addWidget(playreal)
 
@@ -94,9 +85,7 @@ class Menu(QMainWindow):
 		self.resize(1500,1200)
 		self.show()
 
-	def start_game(self, real):
-		for p in self.playersInput:
-			if p.text() == "":
-				return
-		self.main.player_names = [p.text() for p in self.playersInput]
-		self.main.handle_loadmenustart(real)
+	def start_game(self, type):
+		# self.playersInput = ["Player " + str(i+1)  if self.playersInput[i].text() == "" else self.playersInput[i].text() for i in range(len(self.playersInput))]
+		self.main.player_names =  [self.playersInput[i].text() for i in range(len(self.playersInput)) if self.playersInput[i].text() != "" ]
+		self.main.handle_loadmenustart(type)

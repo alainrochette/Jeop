@@ -82,6 +82,7 @@ class Game(QMainWindow):
 						for qcol in range(colrange):
 							answer = row[qcol] if not pd.isna(row[qcol]) else ""
 							roundExcelQuestions[round][qrow][qcol].a_text = answer
+							if isCat: roundExcelQuestions[round][qrow][qcol].clue = textwrap.fill(answer,width=27)
 					else:
 						isCat = True if (r==3 or r==17 or r==31) else False
 						colrange = 6 if round < 3 else 1
@@ -91,7 +92,7 @@ class Game(QMainWindow):
 						roundQuestionRow = []
 						for qcol in range(colrange):
 							question = row[qcol]
-							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "cat"))
+							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "cat",))
 						roundExcelQuestions[round].append(roundQuestionRow)
 
 			r += 1
@@ -99,6 +100,8 @@ class Game(QMainWindow):
 
 	def getRow(self, round, prize):
 		return int((prize / round) / 200)
+
+
 
 	def loadRealQuestions(self):
 
@@ -161,9 +164,9 @@ class Game(QMainWindow):
 											roundExcelQuestions[r][q.r][totalcats[r]] = q
 										totalcats[r] += 1
 										if totalcats[r] >= 6: break
-							if totalcats[r] >= 6: break
-						if totalcats[r] >= 6: break
-					if totalcats[r] >= 6: break
+					# 		if totalcats[r] >= 6: break
+					# 	if totalcats[r] >= 6: break
+					# if totalcats[r] >= 6: break
 
 		return roundExcelQuestions
 

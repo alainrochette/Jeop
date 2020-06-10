@@ -20,10 +20,12 @@ class Question:
 		self.category = category
 		self.r = r
 		self.c = c
+		self.q = None
 		self.loading = loading
 		self.clue = clue
 		self.song = None
-
+		question_text = str(question_text)
+		answer_text = str(answer_text)
 		if ".mp3" in question_text:
 			self.q_text = question_text.split("Sounds/")[0]
 			filename= "Sounds/" +question_text.split("Sounds/")[1]
@@ -125,11 +127,11 @@ class Question:
 		b.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 		return b
 
-	def QAppear(self, ans):
+	def QAppear(self, ans, FinalQ=False):
 		self.transTimer = QTimer()
-		if "Pictures/" in self.q_text and not ans:
-			self.transTimer.timeout.connect(lambda:self.changeQSize())
 
+		if (FinalQ and "Pictures/" in self.q_text) or (self.round<3 and ("Pictures/" in self.q_text and not ans)):
+			self.transTimer.timeout.connect(lambda:self.changeQSize())
 		else:
 			if self.song: self.song.stop()
 			self.transTimer.timeout.connect(lambda:self.changeQColor(ans))
@@ -186,7 +188,7 @@ class Question:
 				self.ansb.setStyleSheet('QLabel {font-family: Arial;font-style: italic;font-size: 60pt;font-weight: thin;'
 									'border: 0px solid #FFFFFF; background-color: #000292; color:'+str(t[self.colorindex])+';}'
 									'height: 418px;width: 48px;')
-			elif "Pictures/" not in self.q_text:
+			elif ("Pictures/" not in self.q_text) or (self.round == 3):
 				self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
 										'border: 0px solid #FFFFFF; background-color: #000292; color:'+str(t[self.colorindex])+';}'
 										'height: 418px;width: 48px;')
@@ -228,18 +230,31 @@ class Question:
 			blayout.setSpacing(10)
 
 		else:
-			if "Pictures/" in self.q_text:
-				self.q = QLabel()
-				self.q.setStyleSheet("background-color: #000292;")
-				img = QImage(self.q_text).scaledToHeight(0)
-				self.q.setPixmap(QPixmap.fromImage(img))
-				self.q.setAlignment(Qt.AlignCenter)
+			if self.round == 3:
+				print(self.q)
+				if self.q:
+					self.q = QLabel()
+					self.q.setStyleSheet("background-color: #000292;")
+					img = QImage(self.q_text).scaledToHeight(0)
+					self.q.setPixmap(QPixmap.fromImage(img))
+					self.q.setAlignment(Qt.AlignCenter)
+				else:
+					self.q = QLabel(self.category)
+					self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
+											'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
+											'height: 418px;width: 48px;')
 			else:
-				if self.round == 3: self.q = QLabel(self.category)
-				if self.round != 3: self.q = QLabel(self.q_text)
-				self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
-										'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
-										'height: 418px;width: 48px;')
+				if "Pictures/" in self.q_text:
+					self.q = QLabel()
+					self.q.setStyleSheet("background-color: #000292;")
+					img = QImage(self.q_text).scaledToHeight(0)
+					self.q.setPixmap(QPixmap.fromImage(img))
+					self.q.setAlignment(Qt.AlignCenter)
+				else:
+					self.q = QLabel(self.q_text)
+					self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
+											'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
+											'height: 418px;width: 48px;')
 			self.q.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 			self.q.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 			blayout.addWidget(self.q)
@@ -351,7 +366,11 @@ class Question:
 
 
 	def showFinalQ(self):
-		self.q.setText(self.q_text)
+
+		if "Pictures/" not in self.q_text:
+			self.q.setText(self.q_text)
+		self.QAppear(False,True)
+
 		self.bTimer.setText("Start Timer")
 		self.bTimer.clicked.connect(lambda: self.toggleFinalTimer())
 

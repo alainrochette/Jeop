@@ -6,6 +6,7 @@ from Game import Game
 from Player import Player
 from Menus.Menu import Menu
 from Menus.LoadMenu import LoadMenu
+from Menus.CreateMenu import CreateMenu
 from Menus.DoubMenu import DoubMenu
 from Menus.FinalMenu import FinalMenu
 import PyQt5.QtMultimedia as M
@@ -25,7 +26,6 @@ class Communicate(QObject):
 COM = Communicate()
 
 # + = [] {}
-THEMEVOLUME = 10
 class MainWindow(QWidget):
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
@@ -70,18 +70,22 @@ class MainWindow(QWidget):
 		self.hide()
 		self.on_menu = True
 
-	def handle_loadmenustart(self, real=False):
+	def handle_loadmenustart(self, type=None):
 		if self.menu: self.menu.hide()
 		if self.game: self.game.hide()
 		if "jeopFinal" in self.sounds: self.sounds["jeopFinal"].stop()
-		self.loadmenu = LoadMenu(self, real)
+		if type == "Create":
+			self.loadmenu = CreateMenu(self)
+		else:
+			real = True if type == "Real" else False
+			self.loadmenu = LoadMenu(self, real)
 		self.hide()
 
-	def handle_gamestart(self,game,season=None):
+	def handle_gamestart(self,gameName,season=None):
 		if self.menu: self.menu.hide()
 		if self.loadmenu: self.loadmenu.hide()
 		if self.game: self.game.deleteLater()
-		self.game = Game(self,game,season)
+		self.game = Game(self,gameName,season)
 
 	def handle_doublejeopardy(self):
 		if self.menu: self.menu.hide()
@@ -111,11 +115,13 @@ if __name__ == '__main__':
 		print("---- Installing pip ----\n")
 		os.system("curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py")
 		os.system("python3 get-pip.py")
-		print("---- Installing pandas ----\n")
+		print("---- Installing Interface ----\n")
+		os.system("python3 -m pip install PyQt5")
+		print("---- Installing Pandas ----\n")
 		os.system("pip install pandas")
-		if sys.platform == "darwin":
-		    print("\n---- Installing XCode Command Line Tools ----\n")
-		    os.system("xcode-select --install")
+		# if sys.platform == "darwin":
+		#     print("\n---- Installing XCode Command Line Tools ----\n")
+		#     os.system("xcode-select --install")
 
 
 	_main_window = MainWindow()

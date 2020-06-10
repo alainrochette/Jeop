@@ -77,6 +77,7 @@ class Player:
 		p.setReadOnly(True)
 		p.setAlignment(QtCore.Qt.AlignCenter)
 		p.setValidator(QIntValidator(-999999,99999, None))
+		p.setMaximumSize(350,1000)
 		p.returnPressed.connect(lambda: self.stopEdit())
 		p.textEdited.connect(lambda: self.newScore())
 		return p
@@ -88,6 +89,7 @@ class Player:
 								'height: 418px;width: 48px; align:center')
 		p.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Preferred)
 		# p.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+		p.setMaximumSize(300,1000)
 		p.clicked.connect(lambda: self.toggleEdit())
 		return p
 
@@ -99,6 +101,7 @@ class Player:
 								'height: 28px;width: 38px;')
 		b.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 		b.setMinimumWidth(30)
+		b.setMaximumWidth(30)
 		b.clicked.connect(lambda: self.game.playerAdd(self))
 
 		return b
@@ -111,6 +114,7 @@ class Player:
 								'height: 28px;width: 38px;')
 		b.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 		b.setMinimumWidth(30)
+		b.setMaximumWidth(30)
 		b.clicked.connect(lambda: self.game.playerRem(self))
 
 		return b
