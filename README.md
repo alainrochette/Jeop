@@ -2,8 +2,8 @@
 
 python3 required. (https://www.python.org/downloads/)
 
-`python3 main.py [--install]`
+Run: `python3 main.py [--install]`
 
-`--install`: Installs PyQt5 Interface and Pandas
+Optional: `--install`: Installs PyQt5 Interface and Pandas
 
 For git: `xcode-select --install`
