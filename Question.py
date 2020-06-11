@@ -22,7 +22,7 @@ class Question:
 		self.c = c
 		self.q = None
 		self.loading = loading
-		self.clue = clue
+		self.clue = clue.replace("- ","")
 		self.song = None
 		question_text = str(question_text)
 		answer_text = str(answer_text)
@@ -85,15 +85,21 @@ class Question:
 									'height: 30px;width: 48px;')
 		elif self.text in self.game.revealedCats:
 			b = QPushButton(self.text)
-			if self.clue:
+			if len(self.clue) > 5:
 				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
 										'border: 2px solid yellow; background-color: #000292; color:white;}'
 										'QPushButton:hover { background-color: blue;}'
 										'height: 418px;width: 48px;')
 			else:
-				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-										'height: 30px;width: 48px;')
+				if len(self.clue) > 0:
+					b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+											'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+											'QPushButton:hover { background-color: blue;}'
+											'height: 30px;width: 48px;')
+				else:
+					b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+											'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+											'height: 30px;width: 48px;')
 			b.clicked.connect(lambda: self.toggleClue())
 
 
@@ -378,7 +384,7 @@ class Question:
 		self.bTimer.clicked.connect(lambda: self.toggleFinalTimer())
 
 	def toggleClue(self):
-		if self.clue:
+		if len(self.clue) > 5:
 			if self.b.text() == self.clue:
 				self.b.setText(self.text)
 				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
@@ -389,6 +395,19 @@ class Question:
 				self.b.setText(self.clue)
 				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
 										'border: 2px solid yellow; background-color: #000292; color:yellow;}'
+										'QPushButton:hover { background-color: blue;}'
+										'height: 418px;width: 48px;')
+		elif len(self.clue) > 0:
+			if self.b.text() == self.clue:
+				self.b.setText(self.text)
+				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+										'QPushButton:hover { background-color: blue;}'
+										'height: 418px;width: 48px;')
+			else:
+				self.b.setText(self.clue)
+				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 25pt;font-weight: bold;'
+										'border: 2px solid #FFFFFF; background-color: #000292; color:yellow;}'
 										'QPushButton:hover { background-color: blue;}'
 										'height: 418px;width: 48px;')
 
