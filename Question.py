@@ -22,7 +22,9 @@ class Question:
 		self.c = c
 		self.q = None
 		self.loading = loading
-		self.clue = clue.replace("- ","")
+		# self.clue = clue
+		if clue: self.clue = clue.replace("- ","")
+		if not clue: self.clue = ""
 		self.song = None
 		question_text = str(question_text)
 		answer_text = str(answer_text)
