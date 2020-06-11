@@ -83,13 +83,13 @@ class Game(QMainWindow):
 				if round < 3: roundExcelQuestions[round]=  [["X" for i in range(6)] for i in range(6)]
 				if round == 3: roundExcelQuestions[round]=  [["X"]]
 			# print("BEFORE", round,ncats, nqs)
-			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
+			tsv_file = open("Seasons/season"+str(s)+".csv")
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			roundQuestionRow = []
 			if cat == "?":
 				row_count = sum([1 for row in read_tsv])
 				tsv_file.close()
-				tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
+				tsv_file = open("Seasons/season"+str(s)+".csv")
 				read_tsv = csv.reader(tsv_file, delimiter=",")
 				start_row = random.randint(1,row_count - 9)
 				rcount = 0
@@ -191,40 +191,40 @@ class Game(QMainWindow):
 		return int((prize / round) / 200)
 
 
-	def cleanSeasons(self):
-		catCount = {}
-		for s in range(1,36):
-			tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
-			read_tsv = csv.reader(tsv_file, delimiter="\t")
-
-
-			for row in read_tsv:
-				dt = self.convDate(row[7])
-				cat = row[3].replace("\\", "")
-				concot = dt + cat
-				if concot not in catCount:
-					catCount[concot] = 0
-				catCount[concot] += 1
-			tsv_file.close()
-		for s in range(1,36):
-			tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
-			output = open("Clean Seasons/clean_season" + str(s)+ ".csv", 'a', newline='')
-			read_tsv = csv.reader(tsv_file, delimiter="\t")
-			write_tsv = csv.writer(output, dialect='excel')
-			checkedConcots = []
-			for row in read_tsv:
-				dt = self.convDate(row[7])
-				cat = row[3].replace("\\", "")
-				concot = dt + cat
-				if catCount[concot] == 5 or row[0] == '3':
-					# print(row)
-					write_tsv.writerow(row)
+	# def cleanSeasons(self):
+	# 	catCount = {}
+	# 	for s in range(1,36):
+	# 		tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
+	# 		read_tsv = csv.reader(tsv_file, delimiter="\t")
+	#
+	#
+	# 		for row in read_tsv:
+	# 			dt = self.convDate(row[7])
+	# 			cat = row[3].replace("\\", "")
+	# 			concot = dt + cat
+	# 			if concot not in catCount:
+	# 				catCount[concot] = 0
+	# 			catCount[concot] += 1
+	# 		tsv_file.close()
+	# 	for s in range(1,36):
+	# 		tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
+	# 		output = open("Clean Seasons/clean_season" + str(s)+ ".csv", 'a', newline='')
+	# 		read_tsv = csv.reader(tsv_file, delimiter="\t")
+	# 		write_tsv = csv.writer(output, dialect='excel')
+	# 		checkedConcots = []
+	# 		for row in read_tsv:
+	# 			dt = self.convDate(row[7])
+	# 			cat = row[3].replace("\\", "")
+	# 			concot = dt + cat
+	# 			if catCount[concot] == 5 or row[0] == '3':
+	# 				# print(row)
+	# 				write_tsv.writerow(row)
 
 
 		# return roundExcelQuestions
 
 	def loadRealQuestions(self):
-		tsv_file = open("Clean Seasons/clean_season"+str(self.season)+".csv")
+		tsv_file = open("Seasons/season"+str(self.season)+".csv")
 		# tsv_file = open("Seasons/season"+str(self.season)+".tsv")
 		read_tsv = csv.reader(tsv_file, delimiter=",")
 

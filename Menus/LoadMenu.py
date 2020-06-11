@@ -131,7 +131,7 @@ class LoadMenu(QMainWindow):
 
 	def loadReal(self, season):
 		nameGames = []
-		tsv_file = open("Clean Seasons/clean_season"+str(season)+".csv")
+		tsv_file = open("Seasons/season"+str(season)+".csv")
 		read_tsv = csv.reader(tsv_file, delimiter=",")
 		for row in read_tsv:
 			try:

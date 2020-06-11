@@ -34,7 +34,7 @@ class CreateMenu(QMainWindow):
 		allCats = {cat:[]}
 		searchWithQ = {cat:[]}
 		for s in reversed(range(1,36)):
-			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
+			tsv_file = open("Seasons/season"+str(s)+".csv")
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			for row in reversed(list(read_tsv)):
 				if (row[0]!='3' and len(self.selectedCats) < 12) or (len(self.selectedCats) == 12 and row[0] == '3'):
@@ -211,7 +211,7 @@ class CreateMenu(QMainWindow):
 
 	def loadReal(self, season):
 		nameGames = []
-		tsv_file = open("Clean Seasons/clean_season"+str(season)+".csv")
+		tsv_file = open("Seasons/season"+str(season)+".csv")
 		read_tsv = csv.reader(tsv_file, delimiter=",")
 		for row in read_tsv:
 			try:
