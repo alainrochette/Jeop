@@ -88,8 +88,9 @@ class MainWindow(QWidget):
 		self.game = Game(self,gameName,season)
 
 	def handle_doublejeopardy(self):
-		if self.menu: self.menu.hide()
+		# if self.menu: self.menu.hide()
 		if self.DoubMenu: self.DoubMenu.hide()
+		# if self.game: self.game.hide()
 		self.game.startDoubleJeopardy()
 
 	def handle_doublejeopardyMenu(self):

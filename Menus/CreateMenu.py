@@ -30,22 +30,20 @@ class CreateMenu(QMainWindow):
 		self.resize(1500,1200)
 		self.refreshMenu()
 
-	def filteredCats(self,filter=None):
-		allCats = {filter[i]:[] for i in range(len(filter))}
-		searchWithQ = {filter[i]:[] for i in range(len(filter))}
+	def filteredCats(self,cat=None):
+		allCats = {cat:[]}
+		searchWithQ = {cat:[]}
 		for s in reversed(range(1,36)):
 			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
 			read_tsv = csv.reader(tsv_file, delimiter=",")
-			for row in read_tsv:
-				for cat in filter:
-					if (row[0]!='3' and len(self.selectedCats) < 12) or (len(self.selectedCats) == 12 and row[0] == '3'):
-
-						if cat.lower() in row[3].lower().replace("\\",""):
-							concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
-							if concot not in allCats[cat]: allCats[cat].append(concot)
-						if cat.lower() in row[5].lower().replace("\\","") and row[0] != '3':
-							concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
-							if concot not in searchWithQ[cat]: searchWithQ[cat].append(concot)
+			for row in reversed(list(read_tsv)):
+				if (row[0]!='3' and len(self.selectedCats) < 12) or (len(self.selectedCats) == 12 and row[0] == '3'):
+					if cat.lower() in row[3].lower().replace("\\",""):
+						concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+						if concot not in allCats[cat]: allCats[cat].append(concot)
+					if cat.lower() in row[5].lower().replace("\\","") and row[0] != '3':
+						concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+						if concot not in searchWithQ[cat]: searchWithQ[cat].append(concot)
 
 		return allCats, searchWithQ
 
@@ -205,8 +203,7 @@ class CreateMenu(QMainWindow):
 
 	def getSearchTerm(self):
 		if len(self.search.text()) > 2:
-			self.searchTerm = [self.search.text()]
-			self.searchCats, self.searchQs = self.filteredCats(self.searchTerm)
+			self.searchCats, self.searchQs = self.filteredCats(self.search.text())
 			self.refreshMenu(False)
 
 	def convDate(self,d):

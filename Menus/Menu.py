@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 import PyQt5.QtMultimedia as M
 from MenuButton import MenuButton
 
-N_PLAYERS = 4
+N_PLAYERS = 3
 class Menu(QMainWindow):
 	def __init__(self, main):
 		super().__init__()
@@ -25,7 +25,7 @@ class Menu(QMainWindow):
 		self.playersInput = [QLineEdit(self) for i in range(N_PLAYERS)]
 		pcount = 1
 		for p in self.playersInput:
-			p.setMaximumSize(400,max(40,140 - 24*len(self.playersInput)))
+			p.setMaximumSize(400,max(40,130 - 24*len(self.playersInput)))
 			fsize = str(50 - 5*(len(self.playersInput)-2))
 			p.setStyleSheet('QLineEdit {font-family: Arial;font-style: normal;font-size: '+fsize+'pt;font-weight: bold;'
 										'border: 1px solid #FFFFFF; background-color: transparent; color:#b01adb;'
@@ -33,9 +33,9 @@ class Menu(QMainWindow):
 										'height: 48px;width: 18px; align:center;')
 			p.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 			p.setAlignment(QtCore.Qt.AlignCenter)
-			p.setMinimumSize(400,max(40,140 - 24*len(self.playersInput)))
+			p.setMinimumSize(400,max(40,130 - 24*len(self.playersInput)))
 			f = p.font()
-			f.setPointSize(35-5*(len(self.playersInput)-2))
+			f.setPointSize(32-5*(len(self.playersInput)-2))
 			p.setFont(f)
 			p.setPlaceholderText("Player " + str(pcount));
 			pcount += 1
@@ -90,4 +90,5 @@ class Menu(QMainWindow):
 	def start_game(self, type):
 		# self.playersInput = ["Player " + str(i+1)  if self.playersInput[i].text() == "" else self.playersInput[i].text() for i in range(len(self.playersInput))]
 		self.main.player_names =  [self.playersInput[i].text() for i in range(len(self.playersInput)) if self.playersInput[i].text() != "" ]
-		self.main.handle_loadmenustart(type)
+		if len(self.main.player_names) > 0:
+			self.main.handle_loadmenustart(type)

@@ -125,6 +125,7 @@ class Question:
 				# b.setGraphicsEffect(shad)
 				b.clicked.connect(lambda: self.game.clickedQ(self))
 		b.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        # b.setMaximumSize(100,50)
 		return b
 
 	def QAppear(self, ans, FinalQ=False):
@@ -368,6 +369,9 @@ class Question:
 
 		if "Pictures/" not in self.q_text:
 			self.q.setText(self.q_text)
+		self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
+								'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
+								'height: 418px;width: 48px;')
 		self.QAppear(False,True)
 
 		self.bTimer.setText("Start Timer")
@@ -377,7 +381,7 @@ class Question:
 		if self.clue:
 			if self.b.text() == self.clue:
 				self.b.setText(self.text)
-				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 24pt;font-weight: bold;'
+				self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
 										'border: 2px solid yellow; background-color: #000292; color:white;}'
 										'QPushButton:hover { background-color: blue;}'
 										'height: 418px;width: 48px;')
@@ -388,12 +392,6 @@ class Question:
 										'QPushButton:hover { background-color: blue;}'
 										'height: 418px;width: 48px;')
 
-		else:
-			pass
-			# self.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 25pt;font-weight: bold;'
-			# 						'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-			# 						'height: 30px;width: 48px;')
-			# self.b.clicked.connect(lambda: self.game.nothing())
 
 	def showQuestion(self):
 		self.qLayout = QVBoxLayout()

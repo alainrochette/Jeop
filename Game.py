@@ -108,6 +108,7 @@ class Game(QMainWindow):
 								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]),fcat, "cat",row[4])
 							if round != 3: nqs += 1
 							q = row[5].replace("\\", "")
+							if row[2] == 'yes': q = "**" + q
 							a = row[6].replace("\\", "")
 							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]), q,a,row[4])
 					rcount +=1
@@ -123,14 +124,31 @@ class Game(QMainWindow):
 					if cat == fcat and d == fd:
 
 						if nqs == 0:
-							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]),cat, "cat",row[4])
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat ,cat, "cat",row[4])
 						if round != 3: nqs += 1
 						q = row[5].replace("\\", "")
+						if row[2] == 'yes': q = "**" + q
 						a = row[6].replace("\\", "")
-						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]), q,a,row[4])
+						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
 				if nqs == 5:
 					nqs = 0
 					ncats += 1
+
+		for round in range(1,3):
+			totalDJ = 0
+			for r in range(5):
+				for c in range(6):
+					if "**" in  roundExcelQuestions[round][r][c].q_text:
+						if totalDJ == round:
+							roundExcelQuestions[round][r][c].q_text = roundExcelQuestions[round][r][c].q_text.replace("**","")
+						else:
+							totalDJ +=1
+			while totalDJ != round:
+				randr = random.randint(1,5)
+				randc = random.randint(1,5)
+				if "**" not in roundExcelQuestions[round][randr][randc].q_text:
+					roundExcelQuestions[round][randr][randc].q_text = "**" + roundExcelQuestions[round][randr][randc].q_text
+					totalDJ += 1
 		return roundExcelQuestions
 
 	def loadQuestions(self):
@@ -281,6 +299,8 @@ class Game(QMainWindow):
 			return "XXX"
 
 	def startFinalJeopardy(self):
+		super().__init__()
+		super().setStyleSheet("background-color: black")
 		self.round = 3
 		self.answered_questions = []
 		self.revealedCats = [1,2,3,4,5,6]
@@ -294,14 +314,18 @@ class Game(QMainWindow):
 		self.clickedQ(q)
 
 	def startDoubleJeopardy(self):
+		super().__init__()
+		super().setStyleSheet("background-color: black")
 		self.round = 2
 		self.answered_questions = []
 		self.revealedCats = []
-
+		self.main.resize(1500,1200)
+		# self.show()
 		self.start_game()
 
 	def clickedQ(self, q):
-		if len(self.revealedCats)== 6:
+		# print(self.revealedCats)
+		if len(self.revealedCats)>= 6:
 
 			self.prize = q.prize
 			self.onQuestion = True
@@ -504,6 +528,7 @@ class Game(QMainWindow):
 								'QPushButton:hover { background-color: darkblue;}'
 								'height: 418px;width: 48px;')
 		back.setMaximumHeight(10)
+		# back.setMaximumWidth(300)
 
 
 		if self.round == 1:
@@ -520,6 +545,7 @@ class Game(QMainWindow):
 								'QPushButton:hover { background-color: darkblue;}'
 								'height: 418px;width: 48px;')
 		dj.setMaximumHeight(10)
+		# dj.setMaximumWidth(300)
 		blayout.addWidget(back)
 		blayout.addWidget(dj)
 		blayout.setSpacing(0)
