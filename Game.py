@@ -69,7 +69,6 @@ class Game(QMainWindow):
 		roundExcelQuestions= {}
 		round = 1
 		ncats = 0
-
 		for concot in self.selectedCats:
 			nqs = 0
 			cat = concot.split("||")[0]
@@ -106,11 +105,11 @@ class Game(QMainWindow):
 						if prev != fcat or starting:
 							starting = True
 							if nqs == 0:
-								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat,fcat, "cat",row[4])
+								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]),fcat, "cat",row[4])
 							if round != 3: nqs += 1
 							q = row[5].replace("\\", "")
 							a = row[6].replace("\\", "")
-							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat, q,a,row[4])
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]), q,a,row[4])
 					rcount +=1
 				if nqs == 5:
 					nqs = 0
@@ -124,12 +123,11 @@ class Game(QMainWindow):
 					if cat == fcat and d == fd:
 
 						if nqs == 0:
-							# print("ADDING", round,ncats, nqs)
-							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat,cat, "cat",row[4])
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]),cat, "cat",row[4])
 						if round != 3: nqs += 1
 						q = row[5].replace("\\", "")
 						a = row[6].replace("\\", "")
-						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
+						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat + "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]), q,a,row[4])
 				if nqs == 5:
 					nqs = 0
 					ncats += 1

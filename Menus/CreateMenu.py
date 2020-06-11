@@ -38,7 +38,7 @@ class CreateMenu(QMainWindow):
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			for row in read_tsv:
 				for cat in filter:
-					if len(self.selectedCats) < 12 or (len(self.selectedCats) == 12 and row[0] == '3'):
+					if (row[0]!='3' and len(self.selectedCats) < 12) or (len(self.selectedCats) == 12 and row[0] == '3'):
 
 						if cat.lower() in row[3].lower().replace("\\",""):
 							concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
