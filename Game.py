@@ -88,12 +88,16 @@ class Game(QMainWindow):
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			roundQuestionRow = []
 			if cat == "?":
-				row_count = sum(1 for row in read_tsv)
+				row_count = sum([1 for row in read_tsv])
+				tsv_file.close()
+				tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
+				read_tsv = csv.reader(tsv_file, delimiter=",")
 				start_row = random.randint(1,row_count - 8)
 				rcount = 0
 				prev = ""
 				starting = False
 				for row in read_tsv:
+					# print(rcount,start_row)
 					if rcount >= start_row:
 						if nqs == 5:
 							break
@@ -102,11 +106,11 @@ class Game(QMainWindow):
 						if prev != fcat or starting:
 							starting = True
 							if nqs == 0:
-								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat,cat, "cat",row[4])
-							nqs += 1
+								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat,fcat, "cat",row[4])
+							if round != 3: nqs += 1
 							q = row[5].replace("\\", "")
 							a = row[6].replace("\\", "")
-							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat, q,a,row[4])
 					rcount +=1
 				if nqs == 5:
 					nqs = 0
@@ -125,8 +129,6 @@ class Game(QMainWindow):
 						if round != 3: nqs += 1
 						q = row[5].replace("\\", "")
 						a = row[6].replace("\\", "")
-						if round == 3: print(nqs, ncats, q, a)
-						# print("ADDING", round,ncats, nqs)
 						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
 				if nqs == 5:
 					nqs = 0
