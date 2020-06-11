@@ -27,7 +27,12 @@ class Game(QMainWindow):
 		self.main = main
 		self.gameName = gameName
 		self.season = season
-		if gameName.count("/") == 2:
+		self.selectedCats = None
+		if gameName == "custom":
+			self.selectedCats = season
+			self.roundExcelQuestions = self.loadCustom()
+
+		elif gameName.count("/") == 2:
 			self.roundExcelQuestions  = self.loadRealQuestions()
 		else:
 			self.roundExcelQuestions  = self.loadQuestions()
@@ -57,10 +62,76 @@ class Game(QMainWindow):
 		self.answered_questions = []
 		self.revealedCats = []
 		self.main.players = [Player(self, name) for name in main.player_names]
-
+		# self.cleanSeasons()
 		self.start_game(load=True)
 
+	def loadCustom(self):
+		roundExcelQuestions= {}
+		round = 1
+		ncats = 0
 
+		for concot in self.selectedCats:
+			nqs = 0
+			cat = concot.split("||")[0]
+			s = concot.split("||")[1]
+			d = concot.split("||")[2]
+			if concot == "?||?||?": s = str(random.randint(1,35))
+
+			if ncats == 6:
+				ncats = 0
+				round += 1
+			if ncats == 0:
+				if round < 3: roundExcelQuestions[round]=  [["X" for i in range(6)] for i in range(6)]
+				if round == 3: roundExcelQuestions[round]=  [["X"]]
+			# print("BEFORE", round,ncats, nqs)
+			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
+			read_tsv = csv.reader(tsv_file, delimiter=",")
+			roundQuestionRow = []
+			if cat == "?":
+				row_count = sum(1 for row in read_tsv)
+				start_row = random.randint(1,row_count - 8)
+				rcount = 0
+				prev = ""
+				starting = False
+				for row in read_tsv:
+					if rcount >= start_row:
+						if nqs == 5:
+							break
+						fcat = row[3].replace("\\", "")
+						if prev == "": prev = fcat
+						if prev != fcat or starting:
+							starting = True
+							if nqs == 0:
+								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat,cat, "cat",row[4])
+							nqs += 1
+							q = row[5].replace("\\", "")
+							a = row[6].replace("\\", "")
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
+					rcount +=1
+				if nqs == 5:
+					nqs = 0
+					ncats += 1
+			else:
+				for row in read_tsv:
+					if nqs == 5:
+						break
+					fcat = row[3].replace("\\", "")
+					fd = self.convDate(row[7])
+					if cat == fcat and d == fd:
+
+						if nqs == 0:
+							# print("ADDING", round,ncats, nqs)
+							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat,cat, "cat",row[4])
+						if round != 3: nqs += 1
+						q = row[5].replace("\\", "")
+						a = row[6].replace("\\", "")
+						if round == 3: print(nqs, ncats, q, a)
+						# print("ADDING", round,ncats, nqs)
+						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4])
+				if nqs == 5:
+					nqs = 0
+					ncats += 1
+		return roundExcelQuestions
 
 	def loadQuestions(self):
 		excelgame = pd.read_excel('Games.xlsx',sheet_name=self.gameName)
@@ -102,11 +173,42 @@ class Game(QMainWindow):
 		return int((prize / round) / 200)
 
 
+	def cleanSeasons(self):
+		catCount = {}
+		for s in range(1,36):
+			tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
+			read_tsv = csv.reader(tsv_file, delimiter="\t")
+
+
+			for row in read_tsv:
+				dt = self.convDate(row[7])
+				cat = row[3].replace("\\", "")
+				concot = dt + cat
+				if concot not in catCount:
+					catCount[concot] = 0
+				catCount[concot] += 1
+			tsv_file.close()
+		for s in range(1,36):
+			tsv_file = open("Clean Seasons/season"+str(s)+".tsv")
+			output = open("Clean Seasons/clean_season" + str(s)+ ".csv", 'a', newline='')
+			read_tsv = csv.reader(tsv_file, delimiter="\t")
+			write_tsv = csv.writer(output, dialect='excel')
+			checkedConcots = []
+			for row in read_tsv:
+				dt = self.convDate(row[7])
+				cat = row[3].replace("\\", "")
+				concot = dt + cat
+				if catCount[concot] == 5 or row[0] == '3':
+					# print(row)
+					write_tsv.writerow(row)
+
+
+		# return roundExcelQuestions
 
 	def loadRealQuestions(self):
-
-		tsv_file = open("Seasons/season"+str(self.season)+".tsv")
-		read_tsv = csv.reader(tsv_file, delimiter="\t")
+		tsv_file = open("Clean Seasons/clean_season"+str(self.season)+".csv")
+		# tsv_file = open("Seasons/season"+str(self.season)+".tsv")
+		read_tsv = csv.reader(tsv_file, delimiter=",")
 
 
 		roundExcelQuestions= {}
@@ -116,6 +218,7 @@ class Game(QMainWindow):
 
 		dateRounds = {}
 		for row in read_tsv:
+			# print(row[0])
 			dt = self.convDate(row[7])
 			if dt == "XXX": continue
 			round = int(row[0])

@@ -231,7 +231,6 @@ class Question:
 
 		else:
 			if self.round == 3:
-				print(self.q)
 				if self.q:
 					self.q = QLabel()
 					self.q.setStyleSheet("background-color: #000292;")
