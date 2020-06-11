@@ -131,8 +131,8 @@ class LoadMenu(QMainWindow):
 
 	def loadReal(self, season):
 		nameGames = []
-		tsv_file = open("Seasons/season"+str(season)+".tsv")
-		read_tsv = csv.reader(tsv_file, delimiter="\t")
+		tsv_file = open("Clean Seasons/clean_season"+str(season)+".csv")
+		read_tsv = csv.reader(tsv_file, delimiter=",")
 		for row in read_tsv:
 			try:
 				if self.convDate(row[7])  not in nameGames: nameGames.append(self.convDate(row[7]))

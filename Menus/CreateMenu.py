@@ -33,7 +33,7 @@ class CreateMenu(QMainWindow):
 	def filteredCats(self,filter=None):
 		allCats = {filter[i]:set() for i in range(len(filter))}
 		searchWithQ = {filter[i]:set() for i in range(len(filter))}
-		for s in range(30,36):
+		for s in reversed(range(1,36)):
 			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			for row in read_tsv:
@@ -209,8 +209,8 @@ class CreateMenu(QMainWindow):
 
 	def loadReal(self, season):
 		nameGames = []
-		tsv_file = open("Seasons/season"+str(season)+".tsv")
-		read_tsv = csv.reader(tsv_file, delimiter="\t")
+		tsv_file = open("Clean Seasons/clean_season"+str(season)+".csv")
+		read_tsv = csv.reader(tsv_file, delimiter=",")
 		for row in read_tsv:
 			try:
 				if self.convDate(row[7])  not in nameGames: nameGames.append(self.convDate(row[7]))
