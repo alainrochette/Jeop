@@ -39,6 +39,7 @@ class MenuButton:
 							'QPushButton:hover { background-color: #b01adb;}'
 							'height: 68px;width: 48px; align:center')
 			else:
+				self.button.setText(self.name + "   \'" + self.concot.split("||")[2].split("/")[2] )
 				if type == "search": self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
 											'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
 											'QPushButton:hover { background-color: #b01adb;}'

@@ -333,7 +333,7 @@ class Game(QMainWindow):
 
 	def revealCat(self, q):
 		self.revealedCats.append(q.text)
-		self.revealedCats = list(set(self.revealedCats))
+		# self.revealedCats = list(set(self.revealedCats))
 		q.b.setText(q.text)
 		if q.clue:
 			q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'

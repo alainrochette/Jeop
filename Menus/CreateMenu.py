@@ -31,16 +31,21 @@ class CreateMenu(QMainWindow):
 		self.refreshMenu()
 
 	def filteredCats(self,filter=None):
-		allCats = {filter[i]:set() for i in range(len(filter))}
-		searchWithQ = {filter[i]:set() for i in range(len(filter))}
+		allCats = {filter[i]:[] for i in range(len(filter))}
+		searchWithQ = {filter[i]:[] for i in range(len(filter))}
 		for s in reversed(range(1,36)):
 			tsv_file = open("Clean Seasons/clean_season"+str(s)+".csv")
 			read_tsv = csv.reader(tsv_file, delimiter=",")
 			for row in read_tsv:
 				for cat in filter:
 					if len(self.selectedCats) < 12 or (len(self.selectedCats) == 12 and row[0] == '3'):
-						if cat.lower() in row[3].lower().replace("\\",""): allCats[cat].add(row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y'))
-						if cat.lower() in row[5].lower().replace("\\","") and row[0] != '3': searchWithQ[cat].add(row[3].replace("\\","")+ "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y'))
+
+						if cat.lower() in row[3].lower().replace("\\",""):
+							concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+							if concot not in allCats[cat]: allCats[cat].append(concot)
+						if cat.lower() in row[5].lower().replace("\\","") and row[0] != '3':
+							concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+							if concot not in searchWithQ[cat]: searchWithQ[cat].append(concot)
 
 		return allCats, searchWithQ
 
