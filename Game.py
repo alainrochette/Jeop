@@ -356,25 +356,43 @@ class Game(QMainWindow):
 	def revealCat(self, q):
 		self.revealedCats.append(q.text)
 		self.revealedCats = list(set(self.revealedCats))
+
 		q.b.setText(q.text)
+		fsize = "15pt" if len(q.text) > 35 else "20pt"
+
 		if len(q.clue) > 5:
-			q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-									'border: 2px solid yellow; background-color: #000292; color:white;}'
-									'QPushButton:hover { background-color: blue;}'
-									'height: 418px;width: 48px;')
-			q.b.clicked.connect(lambda: q.toggleClue())
+			bordercolor = "solid yellow"
+			hovercolor = "blue"
 		else:
-			# q.b.clicked.connect(lambda: self.nothing())
-			q.b.clicked.connect(lambda: q.toggleClue())
+			bordercolor = "solid #FFFFFF"
+			hovercolor = "#000292"
 			if len(q.clue) > 0:
-				q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-										'QPushButton:hover { background-color: blue;}'
-										'height: 418px;width: 48px;')
-			else:
-				q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-										'height: 418px;width: 48px;')
+				hovercolor = "blue"
+		style = """QPushButton {font-family: Arial ;font-style: normal;font-size: """+fsize+""";font-weight: bold;
+					border: 2px """+bordercolor+"""; background-color: #000292; color:white;}
+					QPushButton:hover { background-color: """+hovercolor+""";}
+					height: 30px;width: 48px;"""
+		q.b.setStyleSheet(style)
+		q.b.clicked.connect(lambda: q.toggleClue())
+
+		# if len(q.clue) > 5:
+		# 	q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+		# 							'border: 2px solid yellow; background-color: #000292; color:white;}'
+		# 							'QPushButton:hover { background-color: blue;}'
+		# 							'height: 418px;width: 48px;')
+		# 	q.b.clicked.connect(lambda: q.toggleClue())
+		# else:
+		# 	# q.b.clicked.connect(lambda: self.nothing())
+		# 	q.b.clicked.connect(lambda: q.toggleClue())
+		# 	if len(q.clue) > 0:
+		# 		q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+		# 								'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+		# 								'QPushButton:hover { background-color: blue;}'
+		# 								'height: 418px;width: 48px;')
+		# 	else:
+		# 		q.b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
+		# 								'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
+		# 								'height: 418px;width: 48px;')
 
 	def backToBoard(self):
 		self.onQuestion = False

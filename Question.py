@@ -80,7 +80,10 @@ class Question:
 
 	def bQuestion(self):
 		self.prize = self.round * self.r * 200
-		self.text = "$" + str(self.prize) if self.r != 0 else textwrap.fill(self.category,width=12)
+		if self.r == 0:
+			wrapwidth = 12 if len(self.q_text) <= 35 else 20
+		self.text = "$" + str(self.prize) if self.r != 0 else textwrap.fill(self.category,width=wrapwidth)
+		# print(self.text)
 		if self.id in self.game.answered_questions:
 			b = QPushButton(self.text)
 			b.clicked.connect(lambda: self.game.clickedQ(self))
@@ -90,6 +93,7 @@ class Question:
 									'height: 30px;width: 48px;')
 		elif self.text in self.game.revealedCats:
 			b = QPushButton(self.text)
+			fsize = "15pt" if len(self.q_text) > 35 else "20pt"
 			if len(self.clue) > 5:
 				bordercolor = "solid yellow"
 				hovercolor = "blue"
@@ -98,7 +102,8 @@ class Question:
 				hovercolor = "#000292"
 				if len(self.clue) > 0:
 					hovercolor = "blue"
-			style = """QPushButton {font-family: Arial ;font-style: normal;font-size: 20pt;font-weight: bold;
+
+			style = """QPushButton {font-family: Arial ;font-style: normal;font-size: """+fsize+""";font-weight: bold;
 						border: 2px """+bordercolor+"""; background-color: #000292; color:white;}
 						QPushButton:hover { background-color: """+hovercolor+""";}
 						height: 30px;width: 48px;"""
@@ -138,9 +143,10 @@ class Question:
 
 	def QAppear(self, ans, FinalQ=False):
 		self.transTimer = QTimer()
-
-		if (FinalQ and "Pictures/" in self.q_text) or (self.round<3 and ("Pictures/" in self.q_text and not ans)):
-			self.transTimer.timeout.connect(lambda:self.changeQSize())
+		self.qsize = 0
+		if (FinalQ and "Pictures/" in self.q_text) or (self.round<3 and ("Pictures/" in self.q_text and not ans)) or (self.round < 3 and "Pictures/" in self.a_text and ans):
+			self.transTimer.timeout.connect(lambda:self.changeQSize(ans))
+			if  "Pictures/" in self.a_text and ans: self.qsize = 1
 		else:
 			if self.song: self.song.stop()
 			self.transTimer.timeout.connect(lambda:self.changeQColor(ans))
@@ -173,10 +179,11 @@ class Question:
 		self.sizeTimer.timeout.connect(lambda:self.changeQSize())
 		self.sizeTimer.start(60)
 
-	def changeQSize(self):
+	def changeQSize(self,ans=False):
+		q_or_a = self.a_text if ans else self.q_text
 		if self.qsize <= 1:
-			if "Pictures/" in self.q_text:
-				img = QImage(self.q_text).scaledToHeight(400*self.qsize)
+			if "Pictures/" in q_or_a:
+				img = QImage(q_or_a).scaledToHeight(400*self.qsize)
 				self.q.setPixmap(QPixmap.fromImage(img))
 				self.q.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
 			else:
@@ -375,16 +382,19 @@ class Question:
 
 
 	def showFinalQ(self):
-		self.showedFinal = True
-		if "Pictures/" not in self.q_text:
-			self.q.setText(self.q_text)
-		self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
-								'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
-								'height: 418px;width: 48px;')
-		self.QAppear(False,True)
+		if not self.showedFinal:
+			self.showedFinal = True
+			if "Pictures/" not in self.q_text:
+				self.q.setText(self.q_text)
+			self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'
+									'border: 0px solid #FFFFFF; background-color: #000292; color:#000292;}'
+									'height: 418px;width: 48px;')
+			self.QAppear(False,True)
+
 
 		self.bTimer.setText("Start Timer")
 		self.bTimer.clicked.connect(lambda: self.toggleFinalTimer())
+
 
 	def toggleClue(self):
 		if len(self.clue) > 5:
