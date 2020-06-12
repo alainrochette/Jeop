@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 import PyQt5.QtMultimedia as M
 from MenuButton import MenuButton
 
-N_PLAYERS = 3
+N_PLAYERS = 5
 class Menu(QMainWindow):
 	def __init__(self, main):
 		super().__init__()
@@ -73,12 +73,10 @@ class Menu(QMainWindow):
 		layout.addWidget(QLabel(""))
 		layout.setSpacing(0)
 		layout.addLayout(title)
+		layout.addWidget(QLabel(""))
 		layout.addLayout(playBox)
-		layout.addWidget(QLabel(""))
-		layout.addWidget(QLabel(""))
-		layout.addWidget(QLabel(""))
-		layout.addWidget(QLabel(""))
-		layout.addWidget(QLabel(""))
+		for i in range(7 - N_PLAYERS):
+			layout.addWidget(QLabel(""))
 
 
 		self.mainWidget = QWidget()

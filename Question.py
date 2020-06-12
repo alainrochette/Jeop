@@ -54,6 +54,7 @@ class Question:
 		self.timerCountdown = 6
 
 		self.titleLabel = None
+		self.bShowAns = None
 		self.qLayout.addLayout(self.menu(self.isDD))
 		self.qLayout.addLayout(self.bTimerBox())
 		self.qLayout.addLayout(self.bQuestionBox(self.isDD))
@@ -64,6 +65,7 @@ class Question:
 		self.transTimer = None
 		self.sizeTimer  = None
 		self.qsize = 0
+
 
 		self.id = str(self.round)+str(r) + str(c)
 
@@ -326,18 +328,18 @@ class Question:
 		blayout.addWidget(self.bTimer)
 
 
-		bShowAns = QPushButton("Show Answer")
-		bShowAns.clicked.connect(lambda: self.game.showAnswer(self))
-		bShowAns.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
+		self.bShowAns = QPushButton("Show Answer")
+		self.bShowAns.clicked.connect(lambda: self.game.showAnswer(self))
+		self.bShowAns.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
 								'border: 1px solid gray; background-color: #000292; color:gray;}'
 								'QPushButton:hover { background-color: blue;}'
 								'height: 418px;width: 48px;')
-		blayout.addWidget(bShowAns)
+		blayout.addWidget(self.bShowAns)
 
 
 
 		blayout.setSpacing(0)
-		bShowAns.setMaximumHeight(30)
+		self.bShowAns.setMaximumHeight(30)
 		return blayout
 
 	def updateTimer(self):

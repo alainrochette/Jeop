@@ -6,7 +6,7 @@ import PyQt5.QtMultimedia as M
 # from PyQt5 import QtGui, QtCore
 # from Pic import Pic
 # + = []
-class FinalMenu(QMainWindow):
+class EndMenu(QMainWindow):
 	def __init__(self, main):
 		super().__init__()
 		# super().setStyleSheet("background-color: black")
@@ -27,8 +27,8 @@ class FinalMenu(QMainWindow):
 		# title.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
 		# title.setAlignment(Qt.AlignTop)
 		titleLabel = QLabel()
-		titleLabel.setStyleSheet("QLabel {background-image:url(\"assets/finalJeopLogo.png\")}")
-		titleLabel.setMinimumSize(835,405)
+		titleLabel.setStyleSheet("QLabel {background-image:url(\"assets/jeopLogo.png\")}")
+		titleLabel.setMinimumSize(863,227)
 
 		title.addWidget(titleLabel)
 		title.setAlignment(Qt.AlignCenter)
@@ -39,14 +39,14 @@ class FinalMenu(QMainWindow):
 
 		playButtonBox = QVBoxLayout()
 		# super().setStyleSheet("background-color: transparent;")
-		play = QPushButton("Play")
+		play = QPushButton("Menu")
 		play.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
 									'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
 									'QPushButton:hover { background-color: #b01adb;}'
 									'height: 68px;width: 48px; align:center')
 		play.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 		play.setMinimumSize(300,50)
-		play.clicked.connect(self.start_game)
+		play.clicked.connect(self.gotoMenu)
 		playButtonBox.setAlignment(Qt.AlignCenter)
 		# playButtonBox.setAlignment(Qt.AlignTop)
 		playButtonBox.addWidget(play)
@@ -96,8 +96,12 @@ class FinalMenu(QMainWindow):
 
 		layout = QVBoxLayout()
 		layout.setSpacing(30)
+		layout.addWidget(QLabel(""))
+		layout.addWidget(QLabel(""))
 		layout.addLayout(title)
+		layout.addWidget(QLabel(""))
 		layout.addLayout(playersBox)
+		layout.addWidget(QLabel(""))
 		layout.addLayout(playBox)
 
 		layout.addWidget(QLabel(""))
@@ -139,6 +143,6 @@ class FinalMenu(QMainWindow):
 		# self.setLayout(playBox)
 		# self.resize(500, 500)
 
-	def start_game(self, diff):
+	def gotoMenu(self, diff):
 		# self.main.player_names = [p.text() for p in self.playersInput]
-		self.main.handle_finaljeopardy()
+		self.main.handle_menustart()

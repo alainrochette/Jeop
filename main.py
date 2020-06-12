@@ -9,6 +9,7 @@ from Menus.LoadMenu import LoadMenu
 from Menus.CreateMenu import CreateMenu
 from Menus.DoubMenu import DoubMenu
 from Menus.FinalMenu import FinalMenu
+from Menus.EndMenu import EndMenu
 import PyQt5.QtMultimedia as M
 
 import csv
@@ -36,6 +37,7 @@ class MainWindow(QWidget):
 		self.loadmenu= None
 		self.doubMenu=None
 		self.finalMenu=None
+		self.endMenu = None
 		self.players  = []
 		self.player_names = []
 		self.me = None
@@ -65,6 +67,7 @@ class MainWindow(QWidget):
 			self.sounds["jeopTheme"].play()
 		if self.game: self.game.hide()
 		if self.loadmenu: self.loadmenu.hide()
+		if self.endMenu: self.endMenu.hide()
 		if "jeopFinal" in self.sounds: self.sounds["jeopFinal"].stop()
 		self.menu.show()
 		self.hide()
@@ -108,6 +111,13 @@ class MainWindow(QWidget):
 		if self.menu: self.menu.hide()
 		if self.game: self.game.hide()
 		self.finalMenu = FinalMenu(self)
+
+	def handle_endjeopardyMenu(self):
+		if self.menu: self.menu.hide()
+		if self.game: self.game.hide()
+		if self.finalMenu: self.finalMenu.hide()
+		self.endMenu = EndMenu(self)
+
 
 
 if __name__ == '__main__':

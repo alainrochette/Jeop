@@ -427,9 +427,11 @@ class Game(QMainWindow):
 
 	def showAnswer(self, q):
 		self.answered = True
-
 		q.QAppear(True)
 		if q.timer: q.toggleTimer()
+		if self.round == 3:
+			q.bShowAns.setText("Finish")
+			q.bShowAns.clicked.connect(self.main.handle_endjeopardyMenu)
 
 	def playerAdd(self, player):
 		if player.edit:
@@ -493,8 +495,12 @@ class Game(QMainWindow):
 			self.questionsGrid.append(newquestionrow)
 		if self.round!= 3: self.fadeAudio()
 
+		player_scores_row= QHBoxLayout()
+		player_scores_row.setSpacing(32)
+		list(map(lambda p: player_scores_row.addWidget(p.b_score), self.main.players))
+
 		players_row = QHBoxLayout()
-		players_row.setSpacing(100)
+		players_row.setSpacing(30)
 
 		for player in self.main.players:
 			player_col = QHBoxLayout()
@@ -506,9 +512,7 @@ class Game(QMainWindow):
 
 			players_row.addLayout(player_col)
 
-		player_scores_row= QHBoxLayout()
-		player_scores_row.setSpacing(100)
-		list(map(lambda p: player_scores_row.addWidget(p.b_score), self.main.players))
+
 
 		self.player_board.addLayout(player_scores_row)
 		self.player_board.addLayout(players_row)
@@ -546,7 +550,7 @@ class Game(QMainWindow):
 			dj.clicked.connect(self.main.handle_finaljeopardyMenu)
 		if self.round == 3:
 			dj = QPushButton("End Jeopardy")
-			dj.clicked.connect(lambda: self.nothing())
+			dj.clicked.connect(self.main.handle_endjeopardyMenu)
 		dj.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 5pt;font-weight: thin;'
 								'border: 1px solid gray; background-color: black; color:gray;}'
 								'QPushButton:hover { background-color: darkblue;}'

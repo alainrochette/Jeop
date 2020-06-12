@@ -78,7 +78,6 @@ class MenuButton:
 												'border: 0px solid #FFFFFF; background-color: salmon; color:white;border-radius: 5px;}'
 												# 'QPushButton:hover { background-color: blue;}'
 												'height: 68px;width: 48px; align:center')
-			self.button.clicked.connect(lambda:self.menu.removeCustom(self.concot))
 			self.button.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 			self.button.setMinimumSize(30,70)
 			self.button.setMaximumSize(30,70)

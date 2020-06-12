@@ -42,7 +42,7 @@ class DoubMenu(QMainWindow):
 		play = QPushButton("Play")
 		play.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
 									'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
-                                    'QPushButton:hover { background-color: #b01adb;}'
+									'QPushButton:hover { background-color: #b01adb;}'
 									'height: 68px;width: 48px; align:center')
 		play.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 		play.setMinimumSize(300,50)
@@ -78,6 +78,8 @@ class DoubMenu(QMainWindow):
 
 			name.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
 			name.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+			name.setMaximumSize(400,400)
+			score.setMaximumSize(400,400)
 			playerBox.addWidget(score)
 			playerBox.addWidget(name)
 			playerBox.setSpacing(0)
@@ -93,7 +95,7 @@ class DoubMenu(QMainWindow):
 
 
 		layout = QVBoxLayout()
-		layout.setSpacing(80)
+		layout.setSpacing(30)
 		layout.addLayout(title)
 		layout.addLayout(playersBox)
 		layout.addLayout(playBox)
