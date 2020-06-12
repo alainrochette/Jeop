@@ -21,6 +21,7 @@ class Question:
 		self.r = r
 		self.c = c
 		self.q = None
+		self.showedFinal = False
 		self.loading = loading
 		# self.clue = clue
 		if clue: self.clue = clue.replace("- ","")
@@ -90,50 +91,47 @@ class Question:
 		elif self.text in self.game.revealedCats:
 			b = QPushButton(self.text)
 			if len(self.clue) > 5:
-				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-										'border: 2px solid yellow; background-color: #000292; color:white;}'
-										'QPushButton:hover { background-color: blue;}'
-										'height: 418px;width: 48px;')
+				bordercolor = "solid yellow"
+				hovercolor = "blue"
 			else:
+				bordercolor = "solid #FFFFFF"
+				hovercolor = "#000292"
 				if len(self.clue) > 0:
-					b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-											'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-											'QPushButton:hover { background-color: blue;}'
-											'height: 30px;width: 48px;')
-				else:
-					b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 20pt;font-weight: bold;'
-											'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-											'height: 30px;width: 48px;')
+					hovercolor = "blue"
+			style = """QPushButton {font-family: Arial ;font-style: normal;font-size: 20pt;font-weight: bold;
+						border: 2px """+bordercolor+"""; background-color: #000292; color:white;}
+						QPushButton:hover { background-color: """+hovercolor+""";}
+						height: 30px;width: 48px;"""
+			b.setStyleSheet(style)
 			b.clicked.connect(lambda: self.toggleClue())
 
 
 		else:
 			if self.r == 0:
 				b = QPushButton("")
-				b.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 24pt;font-weight: bold;'
-										'border: 2px solid #FFFFFF; background-color: #000292; color:white;}'
-										'QPushButton:hover { background-color: blue;}'
-										'height: 30px;width: 48px;')
+				font = "Arial"
+				fsize = "24pt"
+				bordersize = "2px"
+				fcolor = "white"
+				hovercolor = "blue"
 				b.clicked.connect(lambda: self.game.revealCat(self))
-			elif self.loading:
-				b = QPushButton(self.text)
-				b.setStyleSheet('QPushButton {font-family: Arial Black;font-style: normal;font-size: 50pt;font-weight: bold;'
-										'border: 0px solid #FFFFFF; background-color: #000292; color: #000292}'
-										# 'QPushButton:hover { background-color: blue;}'
-										'height: 30px;width: 48px;')
-				b.clicked.connect(lambda: self.game.clickedQ(self))
 			else:
 				b = QPushButton(self.text)
-				b.setStyleSheet('QPushButton {font-family: Arial Black;font-style: normal;font-size: 50pt;font-weight: bold;'
-										'border: 0px solid #FFFFFF; background-color: #000292; color:  #eccd4b}'
-										'QPushButton:hover { background-color: blue;}'
-										'height: 30px;width: 48px;')
-				# shad = QGraphicsDropShadowEffect()
-				# shad.setBlurRadius(100)
-				# shad.setColor(QColor("white"))
-				# shad.setOffset(40,40)
-				# b.setGraphicsEffect(shad)
+				font = "Arial Black"
+				fsize = "50pt"
+				bordersize = "0px"
+				fcolor = "#eccd4b"
+				hovercolor = "blue"
+				if self.loading:
+					fcolor = "#000292"
+					hovercolor = "#000292"
 				b.clicked.connect(lambda: self.game.clickedQ(self))
+
+			style = """QPushButton {font-family: """+font+""" ;font-style: normal;font-size: """+fsize+""";font-weight: bold;
+						border: """+bordersize+""" solid #FFFFFF; background-color: #000292; color:"""+fcolor+"""}
+						QPushButton:hover { background-color: """+hovercolor+""";}
+						height: 30px;width: 48px;"""
+			b.setStyleSheet(style)
 		b.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         # b.setMaximumSize(100,50)
 		return b
@@ -300,8 +298,9 @@ class Question:
 			back = QPushButton("Back")
 			back.clicked.connect(lambda: self.game.backToBoard())
 		if self.round == 3:
-			back = QPushButton("Home")
-			back.clicked.connect(lambda: self.game.main.handle_menustart())
+			back = QPushButton("Back")
+			# back.clicked.connect(lambda: self.game.main.handle_menustart())
+			back.clicked.connect(lambda: self.game.nothing())
 		back.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
 								'border: 1px solid gray; background-color: #000292; color:gray;}'
 								'QPushButton:hover { background-color: blue;}'
@@ -376,7 +375,7 @@ class Question:
 
 
 	def showFinalQ(self):
-
+		self.showedFinal = True
 		if "Pictures/" not in self.q_text:
 			self.q.setText(self.q_text)
 		self.q.setStyleSheet('QLabel {font-family: Times;font-style: normal;font-size: 60pt;font-weight: bold;'

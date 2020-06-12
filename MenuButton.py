@@ -34,20 +34,25 @@ class MenuButton:
 			self.button.setMinimumSize(300,88)
 		if "search" in type:
 			if self.name == "?":
-				self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 30pt;font-weight: bold;'
-							'border: 2px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
-							'QPushButton:hover { background-color: #b01adb;}'
-							'height: 68px;width: 48px; align:center')
+				fsize = "30pt"
+				bordercolor = "solid #FFFFFF"
+				hovercolor = "#b01adb"
+				bgcolor = "purple"
 			else:
 				self.button.setText(self.name + "  \'" + self.concot.split("||")[2].split("/")[2] )
-				if type == "search": self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
-											'border: 0px solid #FFFFFF; background-color: purple; color:white;border-radius: 15px;}'
-											'QPushButton:hover { background-color: #b01adb;}'
-											'height: 68px;width: 48px; align:center')
-				if type == "searchQ": self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
-											'border: 2px solid purple; background-color: transparent; color:white;border-radius: 15px;}'
-											'QPushButton:hover { background-color: pink;}'
-											'height: 68px;width: 48px; align:center')
+				fsize = "12pt"
+				bordercolor = "solid purple"
+				if type == "search":
+					hovercolor = "#b01adb"
+					bgcolor = "purple"
+				if type == "searchQ":
+					hovercolor = "pink"
+					bgcolor = "transparent"
+			style = """QPushButton {font-family: Arial;font-style: normal;font-size: """+fsize+""";font-weight: bold;
+										border: 2px """+bordercolor+"""; background-color: """+bgcolor+"""; color:white;border-radius: 15px;}
+										QPushButton:hover { background-color: """+hovercolor+""";}
+										height: 68px;width: 48px; align:center"""
+			self.button.setStyleSheet(style)
 			if self.name == "?":
 				self.button.clicked.connect(lambda:self.menu.addCustom("?||?||?", random=True))
 			else:
@@ -59,16 +64,14 @@ class MenuButton:
 		if type == "selectedCat":
 
 			if self.name == "?":
-				self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 22pt;font-weight: bold;'
-												'border: 0px solid #FFFFFF; background-color: #000292; color:white;border-radius: 15px;}'
-												'QPushButton:hover { background-color: blue;}'
-												'height: 68px;width: 48px; align:center')
+				fsize = "22pt"
 			else:
-				self.button.setText(self.name + "  \'" + self.concot.split("||")[2].split("/")[2] )
-				self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 12pt;font-weight: bold;'
-												'border: 0px solid #FFFFFF; background-color: #000292; color:white;border-radius: 15px;}'
-												'QPushButton:hover { background-color: blue;}'
-												'height: 68px;width: 48px; align:center')
+				fsize = "12pt"
+				self.button.setText(self.name + "  \'" + self.concot.split("||")[2].split("/")[2])
+			style = """QPushButton {font-family: Arial;font-style: normal;font-size: """ + fsize + """;font-weight: bold;
+					border: 0px solid #FFFFFF; background-color: #000292; color:white;border-radius: 15px;}
+					height: 68px;width: 48px; align:center;"""
+			self.button.setStyleSheet(style)
 			self.button.clicked.connect(lambda:self.menu.removeCustom(self.concot))
 			self.button.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 			self.button.setMinimumSize(200,70)
@@ -85,15 +88,14 @@ class MenuButton:
 		if type == "blank":
 			self.button.setMinimumSize(150,50)
 			if name == "Seasons:":
-				self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 30pt;font-weight: bold;'
-											'border: 0px solid #FFFFFF; background-color: transparent; color:pink;border-radius: 15px;}'
-											# 'QPushButton:hover { background-color: #b01adb;}'
-											'height: 68px;width: 48px; align:center')
+				color = "pink"
 			else:
-				self.button.setStyleSheet('QPushButton {font-family: Arial;font-style: normal;font-size: 30pt;font-weight: bold;'
-											'border: 0px solid #FFFFFF; background-color: transparent; color:purple;border-radius: 15px;}'
-											# 'QPushButton:hover { background-color: #b01adb;}'
-											'height: 68px;width: 48px; align:center')
+				color = "purple"
+			style = """QPushButton {font-family: Arial;font-style: normal;font-size: 30pt;font-weight: bold;
+						border: 0px solid #FFFFFF; background-color: transparent; color:"""+color+""";border-radius: 15px;}
+						height: 68px;width: 48px; align:center"""
+			self.button.setStyleSheet(style)
+
 			# self.button.clicked.connect(lambda: self.button_load_season())
 	def button_start_game(self, custom=None):
 		if custom:

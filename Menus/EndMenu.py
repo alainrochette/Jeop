@@ -56,11 +56,38 @@ class EndMenu(QMainWindow):
 
 		playersBox = QHBoxLayout()
 
+
+		maxplayer = None
+		maxscore = -1000000
+		multiple = False
+		for p in self.main.players:
+			if p.score > maxscore:
+				maxplayer = p.name
+				maxscore = p.score
+			elif p.score == maxscore:
+				multiple = True
+				maxplayer = maxplayer + ", " + str(p.name)
+		# largeCongratsBox = QVBoxLayout()
+		congratsBox = QHBoxLayout()
+		m = "S" if multiple else ""
+		congrats = QLabel("WINNER" + str(m) + ": "+ str(maxplayer))
+		# width = str(len(maxplayer) + 100) + "px"
+		congrats.setAlignment(Qt.AlignCenter)
+		congrats.setStyleSheet('QLabel {font-family: Arial;font-style: normal;font-size: 40pt;font-weight: bold;'
+									'border: 0px solid #FFFFFF; background-color: transparent; color:purple;border-radius: 15px;}'
+									# 'QPushButton:hover { background-color: #b01adb;}'
+									'height: 68px;width: 500px; align:center')
+		congrats.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
+		congrats.setMinimumSize(500,50)
+		congratsBox.setAlignment(Qt.AlignCenter)
+		congratsBox.addWidget(congrats)
+		# largeCongratsBox.setAlignment(Qt.AlignCenter)
+		# largeCongratsBox.addLayout(congratsBox)
+
 		pcount = 1
 		for p in self.main.players:
 			playerBox = QVBoxLayout()
 			score = QLabel(str(p.score))
-
 
 			# p.setMaximumSize(400,40)
 			score.setStyleSheet('QLabel {font-family: Arial;font-style: normal;font-size: 50pt;font-weight: bold;'
@@ -99,7 +126,9 @@ class EndMenu(QMainWindow):
 		layout.addWidget(QLabel(""))
 		layout.addWidget(QLabel(""))
 		layout.addLayout(title)
-		layout.addWidget(QLabel(""))
+		# layout.addWidget(QLabel(""))
+		layout.addLayout(congratsBox)
+		# layout.addWidget(QLabel(""))
 		layout.addLayout(playersBox)
 		layout.addWidget(QLabel(""))
 		layout.addLayout(playBox)

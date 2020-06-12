@@ -426,12 +426,13 @@ class Game(QMainWindow):
 
 
 	def showAnswer(self, q):
-		self.answered = True
-		q.QAppear(True)
-		if q.timer: q.toggleTimer()
-		if self.round == 3:
-			q.bShowAns.setText("Finish")
-			q.bShowAns.clicked.connect(self.main.handle_endjeopardyMenu)
+		if (self.round ==3 and q.showedFinal) or self.round != 3:
+			self.answered = True
+			q.QAppear(True)
+			if q.timer: q.toggleTimer()
+			if self.round == 3:
+				q.bShowAns.setText("Finish")
+				q.bShowAns.clicked.connect(self.main.handle_endjeopardyMenu)
 
 	def playerAdd(self, player):
 		if player.edit:

@@ -116,6 +116,7 @@ class MainWindow(QWidget):
 		if self.menu: self.menu.hide()
 		if self.game: self.game.hide()
 		if self.finalMenu: self.finalMenu.hide()
+		if "jeopFinal" in self.sounds: self.sounds["jeopFinal"].stop()
 		self.endMenu = EndMenu(self)
 
 
