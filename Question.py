@@ -27,8 +27,21 @@ class Question:
 		if clue: self.clue = clue.replace("- ","")
 		if not clue: self.clue = ""
 		self.song = None
+		self.songQ = None
+		self.songA = None
 		question_text = str(question_text)
 		answer_text = str(answer_text)
+		self.a_text = answer_text
+		if ".mp3" in answer_text:
+			self.a_text = answer_text.split("Sounds/")[0]
+			filename= "Sounds/" +answer_text.split("Sounds/")[1]
+			# filename='assets/dailyDouble.mp3'
+			fullpath = QDir.current().absoluteFilePath(filename)
+			media = QUrl.fromLocalFile(fullpath)
+			content = M.QMediaContent(media)
+
+			self.songA= M.QMediaPlayer()
+			self.songA.setMedia(content)
 		if ".mp3" in question_text:
 			self.q_text = question_text.split("Sounds/")[0]
 			filename= "Sounds/" +question_text.split("Sounds/")[1]
@@ -37,19 +50,19 @@ class Question:
 			media = QUrl.fromLocalFile(fullpath)
 			content = M.QMediaContent(media)
 
-			self.song= M.QMediaPlayer()
-			self.song.setMedia(content)
-			# self.song.play()
-			# print("PLAY!!!")
+			self.songQ= M.QMediaPlayer()
+			self.songQ.setMedia(content)
 		else:
 			self.q_text = question_text.replace("**","")
-			self.q_text = textwrap.fill(self.q_text,width=40) if "Pictures/" not in self.q_text else self.q_text
 
+		self.q_text = textwrap.fill(self.q_text,width=40) if "Pictures/" not in self.q_text else self.q_text
+		self.a_text =textwrap.fill(self.a_text,width=40) if "Pictures/" not in self.a_text else self.a_text
+		self.song = self.songQ
 
 		# print(question_text)
 		self.isDD = True if  "**" in question_text else False
 
-		self.a_text =textwrap.fill( str(answer_text),width=40)
+
 		self.timer = None
 		self.qLayout = QVBoxLayout()
 		self.timerCountdown = 6
@@ -144,6 +157,8 @@ class Question:
 	def QAppear(self, ans, FinalQ=False):
 		self.transTimer = QTimer()
 		self.qsize = 0
+		if self.song and not ans: self.toggleTimer()
+		if self.songA and  ans: self.changeQVolume(True, self.songA)
 		if (FinalQ and "Pictures/" in self.q_text) or (self.round<3 and ("Pictures/" in self.q_text and not ans)) or (self.round < 3 and "Pictures/" in self.a_text and ans):
 			self.transTimer.timeout.connect(lambda:self.changeQSize(ans))
 			if  "Pictures/" in self.a_text and ans: self.qsize = 1
@@ -153,23 +168,24 @@ class Question:
 		self.transTimer.start(60)
 
 
-	def changeQVolume(self, up):
+	def changeQVolume(self, up, songA=None):
+		song = self.song if not songA else songA
 		if up:
 			self.game.main.volume = 0
-			self.song.play()
+			song.play()
 		self.transTimer = QTimer()
-		self.transTimer.timeout.connect(lambda:self.fadeV(up))
+		self.transTimer.timeout.connect(lambda:self.fadeV(up,song))
 		self.transTimer.start(60)
 
-	def fadeV(self, up):
+	def fadeV(self, up,song):
 		inc = 2 if up else -5
 		self.game.main.volume += inc
 		if (up and self.game.main.volume > 100) or ((not up) and self.game.main.volume < 0):
 			self.transTimer=None
 			self.game.main.volume = 100
-			if not up: self.song.stop()
+			if not up: song.stop()
 		else:
-			self.song.setVolume(self.game.main.volume)
+			song.setVolume(self.game.main.volume)
 
 
 
@@ -297,13 +313,17 @@ class Question:
 			blayout.addWidget(self.ansb)
 		return blayout
 
+	def backToBoard(self):
+		if self.songA: self.changeQVolume(False, self.songA)
+		self.game.backToBoard()
+
 	def menu(self, showDDTitle=False):
 		blayout = QHBoxLayout()
 
 		back = QPushButton("Back")
 		if self.round != 3:
 			back = QPushButton("Back")
-			back.clicked.connect(lambda: self.game.backToBoard())
+			back.clicked.connect(lambda: self.backToBoard())
 		if self.round == 3:
 			back = QPushButton("Back")
 			# back.clicked.connect(lambda: self.game.main.handle_menustart())
