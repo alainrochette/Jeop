@@ -39,10 +39,10 @@ class CreateMenu(QMainWindow):
 			for row in reversed(list(read_tsv)):
 				if (row[0]!='3' and len(self.selectedCats) < 12) or (len(self.selectedCats) == 12 and row[0] == '3'):
 					if cat.lower() in row[3].lower().replace("\\",""):
-						concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+						concot = row[3].replace("\\","").replace("&", "&&") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
 						if concot not in allCats[cat]: allCats[cat].append(concot)
 					if cat.lower() in row[5].lower().replace("\\","") and row[0] != '3':
-						concot = row[3].replace("\\","") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
+						concot = row[3].replace("\\","").replace("&", "&&") + "||" + str(s) + "||" + datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y')
 						if concot not in searchWithQ[cat]: searchWithQ[cat].append(concot)
 
 		return allCats, searchWithQ
@@ -149,6 +149,7 @@ class CreateMenu(QMainWindow):
 						searchCol = QVBoxLayout()
 						count = 0
 					catButton = MenuButton(self,textwrap.fill(cat,width=15),"search", cat + "||" + s + "||" + d)
+
 					searchCol.addWidget(catButton.button)
 					count +=1
 			for term in list(self.searchQs):

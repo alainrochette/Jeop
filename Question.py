@@ -178,7 +178,7 @@ class Question:
 		self.transTimer.start(60)
 
 	def fadeV(self, up,song):
-		inc = 2 if up else -5
+		inc = 4 if up else -5
 		self.game.main.volume += inc
 		if (up and self.game.main.volume > 100) or ((not up) and self.game.main.volume < 0):
 			self.transTimer=None

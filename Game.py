@@ -100,16 +100,16 @@ class Game(QMainWindow):
 					if rcount >= start_row and (round == 3 or round != 3 and row[0]!='3'):
 						if nqs == 5:
 							break
-						fcat = row[3].replace("\\", "")
+						fcat = row[3].replace("\\", "").replace("&", "&&")
 						if prev == "": prev = fcat
 						if prev != fcat or starting:
 							starting = True
 							if nqs == 0:
 								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat,fcat, "cat",row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 							if round != 3: nqs += 1
-							q = row[5].replace("\\", "")
+							q = row[5].replace("\\", "").replace("&", "&&")
 							if row[2] == 'yes': q = "**" + q
-							a = row[6].replace("\\", "")
+							a = row[6].replace("\\", "").replace("&", "&&")
 							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat, q,a,row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 					rcount +=1
 				if nqs == 5:
@@ -119,16 +119,16 @@ class Game(QMainWindow):
 				for row in read_tsv:
 					if nqs == 5:
 						break
-					fcat = row[3].replace("\\", "")
+					fcat = row[3].replace("\\", "").replace("&", "&&")
 					fd = self.convDate(row[7])
 					if cat == fcat and d == fd:
 
 						if nqs == 0:
 							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat ,cat, "cat",row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 						if round != 3: nqs += 1
-						q = row[5].replace("\\", "")
+						q = row[5].replace("\\", "").replace("&", "&&")
 						if row[2] == 'yes': q = "**" + q
-						a = row[6].replace("\\", "")
+						a = row[6].replace("\\", "").replace("&", "&&")
 						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 				if nqs == 5:
 					nqs = 0
@@ -138,7 +138,7 @@ class Game(QMainWindow):
 			totalDJ = 0
 			for r in range(5):
 				for c in range(6):
-					if "**" in  roundExcelQuestions[round][r][c].q_text:
+					if "**" in roundExcelQuestions[round][r][c].q_text:
 						if totalDJ == round:
 							roundExcelQuestions[round][r][c].q_text = roundExcelQuestions[round][r][c].q_text.replace("**","")
 						else:
@@ -169,18 +169,18 @@ class Game(QMainWindow):
 						qrow = int(((r -3) % 14)/2)
 						colrange = 6 if round < 3 else 1
 						for qcol in range(colrange):
-							answer = row[qcol] if not pd.isna(row[qcol]) else ""
+							answer = row[qcol].replace("&", "&&") if not pd.isna(row[qcol]) else ""
 							roundExcelQuestions[round][qrow][qcol].a_text = answer
 							if isCat: roundExcelQuestions[round][qrow][qcol].clue = textwrap.fill(answer,width=27)
 					else:
 						isCat = True if (r==3 or r==17 or r==31) else False
 						colrange = 6 if round < 3 else 1
-						if isCat: categories= [row[i] for i in range(colrange)]
+						if isCat: categories= [row[i].replace("&", "&&") for i in range(colrange)]
 
 						qrow = int(((r -3) % 14)/2)
 						roundQuestionRow = []
 						for qcol in range(colrange):
-							question = row[qcol]
+							question = row[qcol].replace("&", "&&")
 							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "cat",))
 						roundExcelQuestions[round].append(roundQuestionRow)
 
@@ -240,7 +240,7 @@ class Game(QMainWindow):
 			dt = self.convDate(row[7])
 			if dt == "XXX": continue
 			round = int(row[0])
-			cat = row[3].replace("\\", "")
+			cat = row[3].replace("\\", "").replace("&", "&&")
 			if dt not in dateRounds:
 				dateRounds[dt] = {}
 			if round not in dateRounds[dt]:
@@ -248,8 +248,8 @@ class Game(QMainWindow):
 			if cat not in dateRounds[dt][round]:
 				dateRounds[dt][round][cat] = []
 				dateRounds[dt][round][cat].append(ExcelQuestion(self,round,0, 100,cat, cat,"cat", row[4]))
-			q = row[5].replace("\\", "")
-			a = row[6].replace("\\", "")
+			q = row[5].replace("\\", "").replace("&", "&&")
+			a = row[6].replace("\\", "").replace("&", "&&")
 			if row[2] == 'yes':
 				r = (r + 1) % 6
 				q = "**" + q

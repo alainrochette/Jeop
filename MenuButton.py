@@ -33,6 +33,7 @@ class MenuButton:
 			self.button.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 			self.button.setMinimumSize(300,88)
 		if "search" in type:
+
 			if self.name == "?":
 				fsize = "30pt"
 				bordercolor = "solid #FFFFFF"
