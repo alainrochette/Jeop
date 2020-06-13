@@ -157,13 +157,14 @@ class Question:
 	def QAppear(self, ans, FinalQ=False):
 		self.transTimer = QTimer()
 		self.qsize = 0
-		if self.song and not ans: self.toggleTimer()
-		if self.songA and  ans: self.changeQVolume(True, self.songA)
+		if self.song and not ans:
+			self.toggleTimer()
+		if self.songA and ans: self.changeQVolume(True, self.songA)
 		if (FinalQ and "Pictures/" in self.q_text) or (self.round<3 and ("Pictures/" in self.q_text and not ans)) or (self.round < 3 and "Pictures/" in self.a_text and ans):
 			self.transTimer.timeout.connect(lambda:self.changeQSize(ans))
 			if  "Pictures/" in self.a_text and ans: self.qsize = 1
 		else:
-			if self.song: self.song.stop()
+			if self.song and ans: self.song.stop()
 			self.transTimer.timeout.connect(lambda:self.changeQColor(ans))
 		self.transTimer.start(60)
 
@@ -178,7 +179,7 @@ class Question:
 		self.transTimer.start(60)
 
 	def fadeV(self, up,song):
-		inc = 4 if up else -5
+		inc = 3 if up else -5
 		self.game.main.volume += inc
 		if (up and self.game.main.volume > 100) or ((not up) and self.game.main.volume < 0):
 			self.transTimer=None

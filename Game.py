@@ -107,9 +107,9 @@ class Game(QMainWindow):
 							if nqs == 0:
 								roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,fcat,fcat, "cat",row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 							if round != 3: nqs += 1
-							q = row[5].replace("\\", "").replace("&", "&&")
+							q = row[5].replace("\\", "")
 							if row[2] == 'yes': q = "**" + q
-							a = row[6].replace("\\", "").replace("&", "&&")
+							a = row[6].replace("\\", "")
 							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,fcat, q,a,row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 					rcount +=1
 				if nqs == 5:
@@ -126,9 +126,9 @@ class Game(QMainWindow):
 						if nqs == 0:
 							roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,0,ncats,cat ,cat, "cat",row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 						if round != 3: nqs += 1
-						q = row[5].replace("\\", "").replace("&", "&&")
+						q = row[5].replace("\\", "")
 						if row[2] == 'yes': q = "**" + q
-						a = row[6].replace("\\", "").replace("&", "&&")
+						a = row[6].replace("\\", "")
 						roundExcelQuestions[round][nqs][ncats] = ExcelQuestion(self,round,nqs,ncats,cat, q,a,row[4]+ "  \'" + str(datetime.datetime.strptime(row[7], '%Y-%m-%d').strftime('%m/%d/%y').split("/")[2]))
 				if nqs == 5:
 					nqs = 0
@@ -169,7 +169,7 @@ class Game(QMainWindow):
 						qrow = int(((r -3) % 14)/2)
 						colrange = 6 if round < 3 else 1
 						for qcol in range(colrange):
-							answer = row[qcol].replace("&", "&&") if not pd.isna(row[qcol]) else ""
+							answer = row[qcol] if not pd.isna(row[qcol]) else ""
 							roundExcelQuestions[round][qrow][qcol].a_text = answer
 							if isCat: roundExcelQuestions[round][qrow][qcol].clue = textwrap.fill(answer,width=27)
 					else:
@@ -180,7 +180,7 @@ class Game(QMainWindow):
 						qrow = int(((r -3) % 14)/2)
 						roundQuestionRow = []
 						for qcol in range(colrange):
-							question = row[qcol].replace("&", "&&")
+							question = row[qcol]
 							roundQuestionRow.append(ExcelQuestion(self,round,qrow,qcol,categories[qcol],question, "cat",))
 						roundExcelQuestions[round].append(roundQuestionRow)
 
@@ -248,8 +248,8 @@ class Game(QMainWindow):
 			if cat not in dateRounds[dt][round]:
 				dateRounds[dt][round][cat] = []
 				dateRounds[dt][round][cat].append(ExcelQuestion(self,round,0, 100,cat, cat,"cat", row[4]))
-			q = row[5].replace("\\", "").replace("&", "&&")
-			a = row[6].replace("\\", "").replace("&", "&&")
+			q = row[5].replace("\\", "")
+			a = row[6].replace("\\", "")
 			if row[2] == 'yes':
 				r = (r + 1) % 6
 				q = "**" + q

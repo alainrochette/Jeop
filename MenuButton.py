@@ -33,7 +33,6 @@ class MenuButton:
 			self.button.setSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
 			self.button.setMinimumSize(300,88)
 		if "search" in type:
-
 			if self.name == "?":
 				fsize = "30pt"
 				bordercolor = "solid #FFFFFF"
@@ -43,14 +42,13 @@ class MenuButton:
 				self.button.setText(self.name + "  \'" + self.concot.split("||")[2].split("/")[2] )
 				fsize = "12pt"
 				bordercolor = "solid purple"
+				hovercolor = "#b01adb"
 				if type == "search":
-					hovercolor = "#b01adb"
 					bgcolor = "purple"
 				if type == "searchQ":
-					hovercolor = "pink"
-					bgcolor = "transparent"
+					bgcolor = "#c552ee"
 			style = """QPushButton {font-family: Arial;font-style: normal;font-size: """+fsize+""";font-weight: bold;
-										border: 2px """+bordercolor+"""; background-color: """+bgcolor+"""; color:white;border-radius: 15px;}
+										border: 1px """+bordercolor+"""; background-color: """+bgcolor+"""; color:white;border-radius: 15px;}
 										QPushButton:hover { background-color: """+hovercolor+""";}
 										height: 68px;width: 48px; align:center"""
 			self.button.setStyleSheet(style)
