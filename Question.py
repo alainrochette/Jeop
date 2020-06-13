@@ -321,7 +321,7 @@ class Question:
 	def menu(self, showDDTitle=False):
 		blayout = QHBoxLayout()
 
-		back = QPushButton("Back")
+		# back = QPushButton("Back")
 		if self.round != 3:
 			back = QPushButton("Back")
 			back.clicked.connect(lambda: self.backToBoard())
