@@ -138,6 +138,8 @@ if __name__ == '__main__':
 
 	_main_window = MainWindow()
 
+	
+
 
 	for s in _main_window.soundsList:
 		filename= 'assets/' + s + '.mp3'

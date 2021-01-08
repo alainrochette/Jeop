@@ -89,7 +89,7 @@ class LoadMenu(QMainWindow):
 			else:
 				button = MenuButton(self,"Saved Games" ,"blank")
 				allgamesBox.addWidget(button.button)
-			for game in list(self.gameNames):
+			for game in list(reversed(list(self.gameNames))):
 				button = MenuButton(self,game,"game")
 				allgamesBox.addWidget(button.button)
 				count += 1
@@ -141,6 +141,6 @@ class LoadMenu(QMainWindow):
 
 	def loadSeasons(self):
 
-		return list(reversed([str(i) for i in range(1,36)]))
+		return list(reversed([str(i) for i in range(1,37)]))
 			# if file.endswith(".txt"):
 			#     print(os.path.join("/mydir", file))

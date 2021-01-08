@@ -355,7 +355,7 @@ class Game(QMainWindow):
 
 	def revealCat(self, q):
 		self.revealedCats.append(q.text)
-		self.revealedCats = list(set(self.revealedCats))
+		# self.revealedCats = list(set(self.revealedCats))
 
 		q.b.setText(q.text)
 		fsize = "15pt" if len(q.text) > 35 else "20pt"
@@ -443,14 +443,14 @@ class Game(QMainWindow):
 			self.timerTick += 1
 
 
-	def showAnswer(self, q):
-		if (self.round ==3 and q.showedFinal) or self.round != 3:
-			self.answered = True
-			q.QAppear(True)
-			if q.timer: q.toggleTimer()
-			if self.round == 3:
-				q.bShowAns.setText("Finish")
-				q.bShowAns.clicked.connect(self.main.handle_endjeopardyMenu)
+	# def showAnswer(self, q):
+	# 	if (self.round ==3 and q.showedFinal) or self.round != 3:
+	# 		self.answered = True
+	# 		q.QAppear(True)
+	# 		if q.timer: q.toggleTimer()
+	# 		if self.round == 3:
+	# 			q.bShowAns.setText("Finish")
+	# 			q.bShowAns.clicked.connect(self.main.handle_endjeopardyMenu)
 
 	def playerAdd(self, player):
 		if player.edit:

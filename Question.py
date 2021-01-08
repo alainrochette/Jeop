@@ -173,6 +173,7 @@ class Question:
 		song = self.song if not songA else songA
 		if up:
 			self.game.main.volume = 0
+			song.setVolume(0)
 			song.play()
 		self.transTimer = QTimer()
 		self.transTimer.timeout.connect(lambda:self.fadeV(up,song))
@@ -316,6 +317,7 @@ class Question:
 
 	def backToBoard(self):
 		if self.songA: self.changeQVolume(False, self.songA)
+		if self.songQ: self.changeQVolume(False, self.songQ)
 		self.game.backToBoard()
 
 	def menu(self, showDDTitle=False):
@@ -356,7 +358,7 @@ class Question:
 
 
 		self.bShowAns = QPushButton("Show Answer")
-		self.bShowAns.clicked.connect(lambda: self.game.showAnswer(self))
+		self.bShowAns.clicked.connect(lambda: self.showAnswer())
 		self.bShowAns.setStyleSheet('QPushButton {font-family: Arial;font-style: italic;font-size: 30pt;font-weight: thin;'
 								'border: 1px solid gray; background-color: #000292; color:gray;}'
 								'QPushButton:hover { background-color: blue;}'
@@ -368,6 +370,15 @@ class Question:
 		blayout.setSpacing(0)
 		self.bShowAns.setMaximumHeight(30)
 		return blayout
+
+	def showAnswer(self):
+		if (self.round ==3 and self.showedFinal) or self.round != 3:
+			self.game.answered = True
+			self.QAppear(True)
+			if self.timer: self.toggleTimer()
+			if self.round == 3:
+				self.bShowAns.setText("Finish")
+				self.bShowAns.clicked.connect(self.game.main.handle_endjeopardyMenu)
 
 	def updateTimer(self):
 		if self.timerCountdown <= 0:
