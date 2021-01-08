@@ -1,4 +1,6 @@
 # J?
+Questions from: https://github.com/jwolle1/jeopardy_clue_dataset.git
+
 
 python3 required. (https://www.python.org/downloads/)
 
